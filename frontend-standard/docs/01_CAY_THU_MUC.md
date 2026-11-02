@@ -4,8 +4,7 @@
 
 ```text
 PTITHCM_HDV_Agriculture_FE/
-├── index.html, app.js, styles.css, mobile.css, v5.css  # UI reference V5 hiện có
-├── assets/, design-tokens.json, preview_*.png          # tham khảo thiết kế
+├── ui-reference-v5/                                 # toàn bộ mẫu HTML/CSS/JS, assets và preview V5
 ├── .github/workflows/frontend-standard.yml           # CI cho workspace
 └── frontend-standard/
     ├── README.md

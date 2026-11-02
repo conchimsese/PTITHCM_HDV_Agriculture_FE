@@ -6,7 +6,7 @@
 - `project/docs/CONTRACT_CHUNG_MVP_v1.md` tuy tên v1 nhưng nội dung **MVP v2.1**: UUID, Gateway, Payment chứa Contract, Kafka, token trong RAM, quyền/state đã chốt.
 - `code/docs/specs/01-trading-service.md`, `04-users-service.md`, `03-notification-service.md`: endpoint/DTO User, Feed, Offer và Notification.
 - OpenAPI Chat/Payment và các spec liên quan được copy vào `reference/contracts/`; xem provenance để biết snapshot. Tài liệu là baseline, chưa phải bằng chứng service đã chạy đúng.
-- `CONTRACT_IMPACT.md` + design-tokens V5 ở root repo: hướng thiết kế và giới hạn API của prototype.
+- `CONTRACT_IMPACT.md` + design-tokens V5 trong `ui-reference-v5/`: hướng thiết kế và giới hạn API của prototype.
 
 Không lấy `PROJECT_CONTEXT_HE_THONG_QUAN_LY_CAY_TRONG.md` cũ làm chuẩn khi mâu thuẫn: bản đó còn Long ID/Contract Service riêng/RabbitMQ/quy tắc chỉ một Offer accept/không reputation. Baseline mới có UUID, Payment module, Kafka, có thể accept nhiều Offer, reputation nội bộ và xử lý dispute.
 

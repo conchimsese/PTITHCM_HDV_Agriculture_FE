@@ -53,7 +53,7 @@ Mobile scaffold có đủ entry point/navigator/native screen để tiếp tục
 - Dùng chung `packages/contracts` (DTO/validation), `packages/api-client` (fetch/auth/mock), `packages/design-tokens` (màu/khoảng cách). Mỗi app có cấu hình env và hook cache riêng.
 - Feature theo nghiệp vụ, cùng cách đặt tên ở hai app: `users`, `farming`, `trading`, `chat`, `payments`, `notifications`, `admin`. **Contract/Deposit/Dispute nằm trong payments.**
 - Nguồn nghiệp vụ: Contract chung MVP v2.1 trong `reference/contracts/`, không lấy hành vi demo V5 làm API contract.
-- Giữ mẫu V5 ở gốc repo để đối chiếu UI; code mới nằm trong folder này. Khi nhóm chuyển hoàn toàn, có thể chuyển workspace này lên root trong PR riêng.
+- Giữ mẫu V5 ở `ui-reference-v5/` để đối chiếu UI; code mới nằm trong folder này. Khi nhóm chuyển hoàn toàn, có thể chuyển workspace này lên root trong PR riêng.
 
 ## 5. Lệnh kiểm tra
 
