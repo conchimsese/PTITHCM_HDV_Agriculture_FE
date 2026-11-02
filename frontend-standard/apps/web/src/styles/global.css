@@ -1,0 +1,253 @@
+:root {
+  font-family: 'Be Vietnam Pro', Arial, sans-serif;
+  color: var(--color-ink);
+  background: var(--color-background);
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input {
+  font: inherit;
+}
+button,
+.button {
+  border: 0;
+  border-radius: var(--radius-control);
+  padding: 13px 20px;
+  background: var(--color-brand700);
+  color: var(--color-card);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+button:hover:not(:disabled),
+.button:hover {
+  background: var(--color-brand900);
+}
+a {
+  color: inherit;
+}
+:focus-visible {
+  outline: 3px solid var(--color-harvest);
+  outline-offset: 4px;
+}
+h1 {
+  font-size: clamp(28px, 3vw, 42px);
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  margin: 12px 0 16px;
+}
+h2 {
+  font-size: 20px;
+  line-height: 1.4;
+  margin: 12px 0;
+}
+p {
+  line-height: 1.7;
+}
+small {
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: var(--color-brand700);
+}
+.lead {
+  color: var(--color-muted);
+  max-width: 740px;
+}
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 24px;
+}
+.login {
+  max-width: 800px;
+  margin: 10vh auto;
+  padding: 24px;
+}
+.login h1 {
+  font-size: clamp(36px, 5vw, 60px);
+}
+.login .card {
+  margin-top: 32px;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.form,
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.form {
+  gap: 20px;
+}
+input {
+  width: 100%;
+  border: 1px solid var(--color-inputBorder);
+  background: var(--color-card);
+  color: var(--color-ink);
+  padding: 12px;
+  border-radius: 10px;
+  min-height: 44px;
+}
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+}
+.sidebar {
+  padding: 28px 20px;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-card);
+}
+.brand {
+  font-size: 23px;
+  font-weight: 800;
+  color: var(--color-brand900);
+  text-decoration: none;
+}
+.brand span {
+  display: block;
+  font-size: 10px;
+  margin-top: 8px;
+  letter-spacing: 0.16em;
+  color: var(--color-muted);
+}
+nav {
+  display: grid;
+  gap: 5px;
+  margin: 24px 0;
+}
+nav a {
+  padding: 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 14px;
+}
+nav a.active {
+  background: var(--color-surfaceSoft);
+  color: var(--color-brand900);
+  font-weight: 700;
+}
+.secondary {
+  background: var(--color-surfaceSoft);
+  color: var(--color-brand900);
+}
+.topbar {
+  min-height: 78px;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.content {
+  padding: 40px;
+  max-width: 1300px;
+}
+.badge {
+  background: var(--color-surfaceSoft);
+  color: var(--color-brand900);
+  border-radius: 30px;
+  padding: 7px 12px;
+  font-size: 12px;
+}
+.accent {
+  border-left: 5px solid var(--color-harvest);
+  margin: 28px 0;
+}
+.module-grid,
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.module {
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+.module:hover {
+  border-color: var(--color-brand700);
+}
+.module span {
+  font-size: 14px;
+  color: var(--color-brand700);
+}
+.listing-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 16px;
+  margin: 28px 0;
+}
+.filters label {
+  font-size: 13px;
+}
+.pagination {
+  margin-top: 24px;
+}
+@media (max-width: 1050px) {
+  .shell {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+  .content {
+    padding: 24px;
+  }
+  .filters {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .shell {
+    display: block;
+  }
+  .sidebar {
+    padding: 20px;
+  }
+  nav {
+    display: flex;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  nav a {
+    white-space: nowrap;
+  }
+  .sidebar > p {
+    display: none;
+  }
+  .module-grid,
+  .listing-grid,
+  .filters {
+    grid-template-columns: 1fr;
+  }
+  .topbar {
+    padding: 16px 20px;
+  }
+  .content {
+    padding: 24px 16px;
+  }
+}

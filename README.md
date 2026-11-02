@@ -1,3 +1,5 @@
+> **Nhóm bắt đầu code FE tại [frontend-standard/](frontend-standard/README.md)**: đã tách web React/Vite và app mobile React Native/Expo, có cây thư mục, quy ước code, hướng dẫn chia việc và ví dụ chạy được. Nội dung bên dưới là tài liệu **mẫu thiết kế V5** để tham khảo UI.
+
 # BA–SOA UI Reference V5 — Ruộng Lúa Việt
 
 **Bản bàn giao thiết kế/frontend cho Farmer, Trader, Admin · 19/10/2026**
