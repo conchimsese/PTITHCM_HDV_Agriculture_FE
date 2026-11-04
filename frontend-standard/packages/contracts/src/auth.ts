@@ -14,4 +14,15 @@ export interface LoginRequest {
   username: string;
   password: string;
 }
+export interface RegisterRequest {
+  username: string;
+  email: string;
+  password: string;
+  role: 'FARMER' | 'TRADER';
+  profile: { fullName?: string; businessName?: string; phone: string };
+}
+export interface RegisterResponse {
+  accountId: string;
+  verificationEmailStatus: 'SENT' | 'FAILED';
+}
 export type Session = { accountId: string; role: Role; tokens: TokenPair | null; isDemo: boolean };

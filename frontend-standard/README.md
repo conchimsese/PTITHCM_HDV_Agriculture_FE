@@ -1,6 +1,6 @@
 # Chuẩn frontend nhóm — Ruộng Lúa Việt
 
-Đây là **khung thư mục để nhóm bắt đầu code**, chưa có giao diện ứng dụng. Đã bỏ toàn bộ màn demo chọn vai trò, dashboard, feed và các form nháp. Chạy lên thấy trang trống là đúng; nhóm thêm màn hình thật vào entry point.
+Đây là **khung thư mục để nhóm bắt đầu code**. Web đã có màn hình đăng nhập, đăng ký và xác minh OTP email tại `/dang-nhap`, `/dang-ky`. Ô đăng nhập nhận số điện thoại hoặc email; Google cần cấu hình OAuth và endpoint backend. Xem [hướng dẫn module tài khoản](apps/web/src/features/users/README.md) để biết các yêu cầu backend còn thiếu. Các màn hình nghiệp vụ và mobile tiếp tục được nhóm triển khai.
 
 - `apps/web`: React + Vite, entry `src/app/App.tsx`.
 - `apps/mobile`: React Native + Expo Router, entry `src/app/index.tsx`, layout `src/app/_layout.tsx`.
