@@ -13,7 +13,8 @@ export const queryClient = new QueryClient({
 export const http = createApiClient({
   baseUrl: env.gatewayUrl,
   getAccessToken: () => getSession()?.tokens?.accessToken,
-  onUnauthorized: () => {
+  onUnauthorized: (sentToken) => {
+    if (getSession()?.tokens?.accessToken !== sentToken) return;
     queryClient.clear();
     setSession(null);
   },
