@@ -4,6 +4,7 @@
 
 - `apps/web`: React + Vite, entry `src/app/App.tsx`.
 - `apps/mobile`: React Native + Expo Router, entry `src/app/index.tsx`, layout `src/app/_layout.tsx`.
+- Module User đã có hồ sơ cá nhân/công khai, chỉnh sửa profile và avatar, quản trị tài khoản trên web/mobile; mobile có đăng nhập/đăng ký/OTP. Xem README trong `apps/{web,mobile}/src/features/users` để biết route và giới hạn tích hợp backend.
 - Trong mỗi app: `src/features/{users,farming,trading,chat,payments,notifications,admin}` có folder pages/screens, components, hooks để nhóm viết code.
 - `src/shared`: UI/layout/hooks dùng chung trong từng app, config và API runtime.
 - `packages/contracts`, `packages/api-client`, `packages/design-tokens`: nền tảng dùng chung, có ví dụ adapter API và test; không tự dựng UI.

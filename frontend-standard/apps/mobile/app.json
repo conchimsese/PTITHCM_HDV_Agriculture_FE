@@ -2,7 +2,18 @@
   "expo": {
     "name": "Ruộng Lúa Việt",
     "slug": "ruong-lua-viet-mobile",
-    "plugins": ["expo-router", "expo-status-bar"],
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Cho phép chọn ảnh đại diện cho tài khoản của bạn.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": false
     },
