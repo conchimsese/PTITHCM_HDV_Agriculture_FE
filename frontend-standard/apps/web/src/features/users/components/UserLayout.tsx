@@ -2,9 +2,11 @@ import type { ReactNode } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { logoutUser, useSession } from '../hooks/useUsers';
+import { useUnreadCount } from '../../notifications/hooks/useNotifications';
 import '../pages/users.css';
 export function UserLayout({ children, admin = false }: { children: ReactNode; admin?: boolean }) {
   const session = useSession();
+  const unread = useUnreadCount();
   const [busy, setBusy] = useState(false);
   if (!session?.tokens) return <Navigate to="/dang-nhap" replace />;
   return (
@@ -16,6 +18,9 @@ export function UserLayout({ children, admin = false }: { children: ReactNode; a
         <p>KẾT NỐI CÙNG PHÁT TRIỂN</p>
         <nav>
           <Link to="/tai-khoan">◉ Hồ sơ cá nhân</Link>
+          <Link to="/thong-bao">
+            ♧ Thông báo {unread.data && <span>({unread.data.count})</span>}
+          </Link>
           {session.role === 'ADMIN' && <Link to="/quan-ly-tai-khoan">▦ Quản lý tài khoản</Link>}
         </nav>
         <button

@@ -1,4 +1,5 @@
 export * from './auth';
+export * from './notifications';
 export * from './users';
 export * from './userForms';
 export * from './common';
