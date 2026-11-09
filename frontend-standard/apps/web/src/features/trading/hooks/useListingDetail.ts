@@ -15,3 +15,4 @@ export function useListingDetail(listingId?: string) {
     enabled: Boolean(listingId),
   });
 }
+
