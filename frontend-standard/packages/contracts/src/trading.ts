@@ -1,16 +1,95 @@
 import { z } from 'zod';
-import { pageSchema } from './common';
-// DTO Feed khác DTO tạo Listing. Không tự thêm giá/ảnh/status mà API không trả.
+import { decimalMoneySchema, pageSchema } from './common';
+
+// ─── Enums & Statuses ─────────────────────────────────────────────
+
+export const listingStatusSchema = z.enum(['OPEN', 'LOCKED', 'SOLD']);
+export type ListingStatus = z.infer<typeof listingStatusSchema>;
+
+export const offerStatusSchema = z.enum(['PENDING', 'ACCEPTED']);
+export type OfferStatus = z.infer<typeof offerStatusSchema>;
+
+// ─── Listing Schemas & Types ─────────────────────────────────────
+
+export const listingDtoSchema = z.object({
+  listingId: z.string().uuid(),
+  farmerId: z.string().uuid(),
+  plotId: z.string().uuid(),
+  cropSeasonId: z.string().uuid(),
+  seedType: z.string().min(1),
+  estimatedYield: z.number().nonnegative(), // in kg
+  area: z.number().positive(), // in m²
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  expectedPrice: decimalMoneySchema, // positive decimal string in VND
+  status: listingStatusSchema,
+});
+export type ListingDTO = z.infer<typeof listingDtoSchema>;
+
+export const createListingRequestSchema = z.object({
+  plotId: z.string().uuid(),
+  cropSeasonId: z.string().uuid(),
+  expectedPrice: decimalMoneySchema,
+});
+export type CreateListingRequest = z.infer<typeof createListingRequestSchema>;
+
+export const listingFilterQuerySchema = z.object({
+  page: z.number().int().nonnegative().optional(),
+  size: z.number().int().min(1).max(100).optional(),
+  status: listingStatusSchema.optional(),
+  seedType: z.string().optional(),
+  farmerId: z.string().uuid().optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+});
+export type ListingFilterQuery = z.infer<typeof listingFilterQuerySchema>;
+
+export const pagedListingSchema = pageSchema(listingDtoSchema);
+
+// ─── Offer Schemas & Types ───────────────────────────────────────
+
+export const offerDtoSchema = z.object({
+  offerId: z.string().uuid(),
+  listingId: z.string().uuid(),
+  farmerId: z.string().uuid(),
+  traderId: z.string().uuid(),
+  depositAmount: decimalMoneySchema, // in VND, starts at "0.00"
+  status: offerStatusSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type OfferDTO = z.infer<typeof offerDtoSchema>;
+
+export const createOfferRequestSchema = z.object({
+  listingId: z.string().uuid(),
+});
+export type CreateOfferRequest = z.infer<typeof createOfferRequestSchema>;
+
+export const offerFilterQuerySchema = z.object({
+  page: z.number().int().nonnegative().optional(),
+  size: z.number().int().min(1).max(100).optional(),
+  listingId: z.string().uuid().optional(),
+  status: offerStatusSchema.optional(),
+  farmerId: z.string().uuid().optional(),
+  traderId: z.string().uuid().optional(),
+});
+export type OfferFilterQuery = z.infer<typeof offerFilterQuerySchema>;
+
+export const pagedOfferSchema = pageSchema(offerDtoSchema);
+
+// ─── Legacy Feed Compatibility (v2.1 preview) ───────────────────
+
 export const listingFeedItemSchema = z.object({
-  listingId: z.uuid(),
+  listingId: z.string().uuid(),
   seedType: z.string(),
   plotLat: z.number(),
   plotLng: z.number(),
   distanceKm: z.number().nonnegative(),
-  farmer: z.object({ farmerId: z.uuid(), fullName: z.string() }),
+  farmer: z.object({ farmerId: z.string().uuid(), fullName: z.string() }),
 });
 export const listingFeedPageSchema = pageSchema(listingFeedItemSchema);
 export type ListingFeedItem = z.infer<typeof listingFeedItemSchema>;
+
 export const feedParamsSchema = z.object({
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
@@ -19,5 +98,3 @@ export const feedParamsSchema = z.object({
   size: z.number().int().min(1).max(100),
 });
 export type FeedParams = z.infer<typeof feedParamsSchema>;
-export type ListingStatus = 'OPEN' | 'LOCKED' | 'SOLD';
-export type CreateListingRequest = { plotId: string; cropSeasonId: string; expectedPrice: string };

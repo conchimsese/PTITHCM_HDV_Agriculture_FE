@@ -7,7 +7,14 @@ export const apiErrorSchema = z.object({
   path: z.string().optional(),
   traceId: z.string().optional(),
 });
-export const decimalMoneySchema = z.string().regex(/^\d+\.\d{2}$/, 'Tiền phải là decimal string');
+export const decimalMoneySchema = z
+  .string()
+  .regex(/^\d+(\.\d{2})?$/, 'Tiền phải là decimal string');
+export const singleResponseSchema = <T extends z.ZodTypeAny>(item: T) =>
+  z.object({
+    data: item,
+  });
+export type SingleResponse<T> = { data: T };
 export const pageSchema = <T extends z.ZodType>(item: T) =>
   z.object({
     items: z.array(item),
