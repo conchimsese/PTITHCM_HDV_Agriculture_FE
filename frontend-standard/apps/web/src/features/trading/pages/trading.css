@@ -1,0 +1,89 @@
+/* ─── Trading Feature Shared Page Styles ────────────────────────── */
+
+.trading-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #164735;
+  margin: 0 0 6px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #607267;
+  margin: 0;
+}
+
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #607267;
+  margin-bottom: 8px;
+}
+
+.breadcrumb-nav a {
+  color: #246b45;
+  text-decoration: none;
+}
+
+.breadcrumb-nav a:hover {
+  text-decoration: underline;
+}
+
+/* Placeholder Panel */
+.placeholder-panel {
+  background: #ffffff;
+  border: 1px dashed #b9cbbd;
+  border-radius: 18px;
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.placeholder-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.placeholder-panel h3 {
+  font-size: 18px;
+  color: #164735;
+  margin: 0;
+}
+
+.placeholder-panel p {
+  font-size: 14px;
+  color: #607267;
+  margin: 0;
+  max-width: 480px;
+}
+
+.status-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #edf5ed;
+  color: #246b45;
+  font-weight: 600;
+  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid #b9cbbd;
+  margin-top: 8px !important;
+}
