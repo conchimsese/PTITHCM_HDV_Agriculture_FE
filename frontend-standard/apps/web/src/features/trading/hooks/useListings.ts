@@ -99,3 +99,4 @@ export function useGeolocation(): GeolocationState {
     clearLocation,
   };
 }
+
