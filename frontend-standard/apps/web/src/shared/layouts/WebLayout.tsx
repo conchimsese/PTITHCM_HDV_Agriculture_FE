@@ -203,4 +203,3 @@ export function WebLayout() {
     </div>
   );
 }
-

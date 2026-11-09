@@ -69,4 +69,3 @@ export function formatDate(isoString: string): string {
     return isoString;
   }
 }
-
