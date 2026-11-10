@@ -6,7 +6,7 @@ import { decimalMoneySchema, pageSchema } from './common';
 export const listingStatusSchema = z.enum(['OPEN', 'LOCKED', 'SOLD']);
 export type ListingStatus = z.infer<typeof listingStatusSchema>;
 
-export const offerStatusSchema = z.enum(['PENDING', 'ACCEPTED']);
+export const offerStatusSchema = z.enum(['PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED']);
 export type OfferStatus = z.infer<typeof offerStatusSchema>;
 
 // ─── Listing Schemas & Types ─────────────────────────────────────
@@ -22,6 +22,7 @@ export const listingDtoSchema = z.object({
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   expectedPrice: decimalMoneySchema, // positive decimal string in VND
+  images: z.array(z.string()).default([]), // 1 to 5 picture URLs
   status: listingStatusSchema,
 });
 export type ListingDTO = z.infer<typeof listingDtoSchema>;
@@ -30,8 +31,15 @@ export const createListingRequestSchema = z.object({
   plotId: z.string().uuid(),
   cropSeasonId: z.string().uuid(),
   expectedPrice: decimalMoneySchema,
+  images: z.array(z.string()).min(1, 'Tối thiểu 1 hình ảnh').max(5, 'Tối đa 5 hình ảnh'),
 });
 export type CreateListingRequest = z.infer<typeof createListingRequestSchema>;
+
+export const uploadImagesResponseSchema = z.object({
+  urls: z.array(z.string()),
+  count: z.number().int().nonnegative(),
+});
+export type UploadImagesResponse = z.infer<typeof uploadImagesResponseSchema>;
 
 export const listingFilterQuerySchema = z.object({
   page: z.number().int().nonnegative().optional(),
@@ -53,6 +61,7 @@ export const offerDtoSchema = z.object({
   listingId: z.string().uuid(),
   farmerId: z.string().uuid(),
   traderId: z.string().uuid(),
+  offeredPrice: decimalMoneySchema, // in VND (decimal string), e.g. "4200000.00"
   depositAmount: decimalMoneySchema, // in VND, starts at "0.00"
   status: offerStatusSchema,
   createdAt: z.string(),
@@ -62,6 +71,7 @@ export type OfferDTO = z.infer<typeof offerDtoSchema>;
 
 export const createOfferRequestSchema = z.object({
   listingId: z.string().uuid(),
+  offeredPrice: decimalMoneySchema.optional(), // Optional counter-offer price
 });
 export type CreateOfferRequest = z.infer<typeof createOfferRequestSchema>;
 

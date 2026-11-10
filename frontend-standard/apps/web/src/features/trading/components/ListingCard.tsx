@@ -61,6 +61,22 @@ export function ListingCard({ listing, userCoords, currentUserId, onMakeOffer }:
         <span className={`status-pill ${currentStatus.className}`}>{currentStatus.label}</span>
       </div>
 
+      {listing.images && listing.images.length > 0 && (
+        <div className="card-produce-media">
+          <img
+            src={listing.images[0]}
+            alt={listing.seedType}
+            className="card-produce-img"
+            loading="lazy"
+          />
+          {listing.images.length > 1 && (
+            <span className="card-photo-count">
+              📷 {listing.images.length} ảnh
+            </span>
+          )}
+        </div>
+      )}
+
       <div className="card-price-section">
         <span className="price-label">Giá mong muốn:</span>
         <span className="price-value">{formatVND(listing.expectedPrice)}</span>

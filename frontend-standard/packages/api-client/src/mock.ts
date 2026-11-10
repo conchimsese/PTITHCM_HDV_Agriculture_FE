@@ -37,6 +37,11 @@ const mockListings: ListingDTO[] = [
     latitude: 10.125,
     longitude: 106.45,
     expectedPrice: '4500000.00',
+    images: [
+      'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1536657464919-892534f60d6e?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
+    ],
     status: 'OPEN',
   },
   {
@@ -50,6 +55,10 @@ const mockListings: ListingDTO[] = [
     latitude: 10.195,
     longitude: 106.512,
     expectedPrice: '3800000.00',
+    images: [
+      'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80',
+    ],
     status: 'OPEN',
   },
   {
@@ -63,6 +72,9 @@ const mockListings: ListingDTO[] = [
     latitude: 10.32,
     longitude: 106.61,
     expectedPrice: '4200000.00',
+    images: [
+      'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
+    ],
     status: 'OPEN',
   },
   {
@@ -76,6 +88,9 @@ const mockListings: ListingDTO[] = [
     latitude: 10.762,
     longitude: 106.66,
     expectedPrice: '5200000.00',
+    images: [
+      'https://images.unsplash.com/photo-1536657464919-892534f60d6e?auto=format&fit=crop&w=800&q=80',
+    ],
     status: 'LOCKED',
   },
 ];
@@ -86,6 +101,7 @@ const mockOffers: OfferDTO[] = [
     listingId: '44444444-4444-4444-8444-444444444444',
     farmerId: '11111111-1111-4111-8111-111111111111',
     traderId: '22222222-2222-4222-8222-222222222222',
+    offeredPrice: '4400000.00',
     depositAmount: '0.00',
     status: 'PENDING',
     createdAt: '2026-11-09T08:00:00.000Z',
@@ -96,10 +112,22 @@ const mockOffers: OfferDTO[] = [
     listingId: '88888888-8888-4888-8888-888888888888',
     farmerId: '11111111-1111-4111-8111-111111111111',
     traderId: '22222222-2222-4222-8222-222222222222',
+    offeredPrice: '5200000.00',
     depositAmount: '260000.00',
     status: 'ACCEPTED',
     createdAt: '2026-11-08T10:00:00.000Z',
     updatedAt: '2026-11-08T11:00:00.000Z',
+  },
+  {
+    offerId: '0193132e-5000-7000-8000-000000000003',
+    listingId: '44444444-4444-4444-8444-444444444444',
+    farmerId: '11111111-1111-4111-8111-111111111111',
+    traderId: '33333333-3333-4333-8333-333333333333',
+    offeredPrice: '4600000.00',
+    depositAmount: '0.00',
+    status: 'PENDING',
+    createdAt: '2026-11-09T09:15:00.000Z',
+    updatedAt: '2026-11-09T09:15:00.000Z',
   },
 ];
 
@@ -108,10 +136,35 @@ export const resetMockTradingData = () => {
 };
 
 export const mockTradingApi: TradingApi = {
+  async uploadImages(files: File[], signal?: AbortSignal): Promise<string[]> {
+    signal?.throwIfAborted();
+    if (!files || files.length === 0) {
+      throw new ApiError(400, 'VALIDATION_ERROR', 'Phải có ít nhất 1 ảnh chụp nông sản.');
+    }
+    if (files.length > 5) {
+      throw new ApiError(400, 'VALIDATION_ERROR', 'Tối đa 5 ảnh chụp nông sản.');
+    }
+    for (const f of files) {
+      if (f.size > 5 * 1024 * 1024) {
+        throw new ApiError(413, 'PAYLOAD_TOO_LARGE', `Ảnh ${f.name} vượt quá giới hạn 5 MiB.`);
+      }
+    }
+    return files.map((file, idx) => {
+      if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+        try {
+          return URL.createObjectURL(file);
+        } catch {
+          // fallback
+        }
+      }
+      return `https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80&idx=${idx}`;
+    });
+  },
+
   async createListing(payload: CreateListingRequest): Promise<ListingDTO> {
     const valid = createListingRequestSchema.parse(payload);
     const newListing: ListingDTO = {
-      listingId: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
+      listingId: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
       farmerId: '11111111-1111-4111-8111-111111111111',
       plotId: valid.plotId,
       cropSeasonId: valid.cropSeasonId,
@@ -121,6 +174,9 @@ export const mockTradingApi: TradingApi = {
       latitude: 10.762622,
       longitude: 106.660172,
       expectedPrice: valid.expectedPrice,
+      images: valid.images && valid.images.length > 0 ? valid.images : [
+        'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80',
+      ],
       status: 'OPEN',
     };
     mockListings.unshift(newListing);
@@ -190,10 +246,11 @@ export const mockTradingApi: TradingApi = {
     }
 
     const newOffer: OfferDTO = {
-      offerId: '5f1a329d-ef81-4f1c-99f5-4f7f6a73c091',
+      offerId: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : '5f1a329d-ef81-4f1c-99f5-4f7f6a73c091',
       listingId: valid.listingId,
       farmerId: listing.farmerId,
       traderId: '22222222-2222-4222-8222-222222222222',
+      offeredPrice: valid.offeredPrice || listing.expectedPrice,
       depositAmount: '0.00',
       status: 'PENDING',
       createdAt: new Date().toISOString(),
@@ -210,6 +267,34 @@ export const mockTradingApi: TradingApi = {
       throw new ApiError(404, 'OFFER_NOT_FOUND', 'Không tìm thấy báo giá');
     }
     found.status = 'ACCEPTED';
+    found.updatedAt = new Date().toISOString();
+    return found;
+  },
+
+  async rejectOffer(offerId: string, signal?: AbortSignal): Promise<OfferDTO> {
+    signal?.throwIfAborted();
+    const found = mockOffers.find((item) => item.offerId === offerId);
+    if (!found) {
+      throw new ApiError(404, 'OFFER_NOT_FOUND', 'Không tìm thấy báo giá');
+    }
+    if (found.status === 'ACCEPTED') {
+      throw new ApiError(400, 'INVALID_STATE_TRANSITION', 'Báo giá đã được chấp thuận, không thể từ chối');
+    }
+    found.status = 'REJECTED';
+    found.updatedAt = new Date().toISOString();
+    return found;
+  },
+
+  async cancelOffer(offerId: string, signal?: AbortSignal): Promise<OfferDTO> {
+    signal?.throwIfAborted();
+    const found = mockOffers.find((item) => item.offerId === offerId);
+    if (!found) {
+      throw new ApiError(404, 'OFFER_NOT_FOUND', 'Không tìm thấy báo giá');
+    }
+    if (found.status === 'ACCEPTED') {
+      throw new ApiError(400, 'INVALID_STATE_TRANSITION', 'Báo giá đã được chấp thuận, không thể hủy bỏ');
+    }
+    found.status = 'CANCELLED';
     found.updatedAt = new Date().toISOString();
     return found;
   },

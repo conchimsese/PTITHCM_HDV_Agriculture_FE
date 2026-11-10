@@ -35,6 +35,10 @@ export const authApi = createAuthApi(http);
 const realTradingApi = createTradingApi(http);
 
 export const tradingApi: TradingApi = {
+  uploadImages: (files, signal) =>
+    getSession()?.isDemo
+      ? mockTradingApi.uploadImages(files, signal)
+      : realTradingApi.uploadImages(files, signal),
   createListing: (payload, key, signal) =>
     getSession()?.isDemo
       ? mockTradingApi.createListing(payload, key, signal)
@@ -55,6 +59,14 @@ export const tradingApi: TradingApi = {
     getSession()?.isDemo
       ? mockTradingApi.acceptOffer(id, signal)
       : realTradingApi.acceptOffer(id, signal),
+  rejectOffer: (id, signal) =>
+    getSession()?.isDemo
+      ? mockTradingApi.rejectOffer(id, signal)
+      : realTradingApi.rejectOffer(id, signal),
+  cancelOffer: (id, signal) =>
+    getSession()?.isDemo
+      ? mockTradingApi.cancelOffer(id, signal)
+      : realTradingApi.cancelOffer(id, signal),
   getOfferDetail: (id, signal) =>
     getSession()?.isDemo
       ? mockTradingApi.getOfferDetail(id, signal)

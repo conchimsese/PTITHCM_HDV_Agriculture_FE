@@ -1,7 +1,13 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
-import { getSession, setSession, setTokenPair, subscribeSession } from '@agri/api-client';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  createDemoSession,
+  getSession,
+  setSession,
+  setTokenPair,
+  subscribeSession,
+} from '@agri/api-client';
 import { authApi } from '../../../shared/api/runtime';
 import { GoogleSignIn } from '../components/GoogleSignIn';
 import './auth.css';
@@ -18,6 +24,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
 
 function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
   const register = mode === 'register';
+  const navigate = useNavigate();
   const session = useSyncExternalStore(subscribeSession, getSession);
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -26,6 +33,11 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
   const [verificationEmail, setVerificationEmail] = useState('');
   const [cooldown, setCooldown] = useState(0);
   const [verified, setVerified] = useState(false);
+
+  function handleDemoLogin(role: 'FARMER' | 'TRADER') {
+    setSession(createDemoSession(role));
+    navigate(role === 'FARMER' ? '/bai-dang' : '/thi-truong');
+  }
   useEffect(() => {
     if (cooldown <= 0) return;
     const timer = window.setTimeout(() => setCooldown(cooldown - 1), 1000);
@@ -96,7 +108,9 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
         const username = isPhone(identifier)
           ? normalizePhone(identifier)
           : identifier.toLowerCase();
-        setTokenPair(await authApi.login({ username, password }));
+        const tokens = await authApi.login({ username, password });
+        setTokenPair(tokens);
+        navigate(tokens.role === 'FARMER' ? '/bai-dang' : '/thi-truong');
       }
     } catch (reason) {
       setError(messageOf(reason));
@@ -209,16 +223,44 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
             <div className="session-card">
               <span className="success-icon">✓</span>
               <p>
-                Tài khoản{' '}
-                {session.role === 'FARMER'
-                  ? 'Nhà nông'
-                  : session.role === 'TRADER'
-                    ? 'Thương lái'
-                    : 'Quản trị viên'}
+                Đang đăng nhập tài khoản:{' '}
+                <strong>
+                  {session.role === 'FARMER'
+                    ? 'Nhà nông (Farmer)'
+                    : session.role === 'TRADER'
+                      ? 'Thương lái (Trader)'
+                      : 'Quản trị viên'}
+                </strong>
+                {session.isDemo && ' [Demo Mode]'}
               </p>
-              <button className="primary-button" disabled={busy} onClick={() => void logout()}>
-                {busy ? 'Đang đăng xuất…' : 'Đăng xuất'}
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '8px' }}>
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={() => navigate(session.role === 'FARMER' ? '/bai-dang' : '/thi-truong')}
+                >
+                  Vào ứng dụng ngay →
+                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    style={{ flex: 1 }}
+                    onClick={() => handleDemoLogin(session.role === 'FARMER' ? 'TRADER' : 'FARMER')}
+                  >
+                    Đổi vai {session.role === 'FARMER' ? 'Thương lái' : 'Nông dân'}
+                  </button>
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    style={{ flex: 1 }}
+                    disabled={busy}
+                    onClick={() => void logout()}
+                  >
+                    {busy ? 'Đang thoát…' : 'Đăng xuất'}
+                  </button>
+                </div>
+              </div>
             </div>
           ) : verified ? (
             <Link className="primary-button button-link" to="/dang-nhap">
@@ -377,13 +419,46 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
                   <div className="divider">
                     <span>hoặc tiếp tục với</span>
                   </div>
-                  <GoogleSignIn onSuccess={setTokenPair} disabled={busy} />
+                  <GoogleSignIn
+                    onSuccess={(tokens) => {
+                      setTokenPair(tokens);
+                      navigate(tokens.role === 'FARMER' ? '/bai-dang' : '/thi-truong');
+                    }}
+                    disabled={busy}
+                  />
                   <p className="auth-switch">
                     {register ? 'Đã có tài khoản?' : 'Bạn chưa có tài khoản?'}{' '}
                     <Link to={register ? '/dang-nhap' : '/dang-ky'}>
                       {register ? 'Đăng nhập' : 'Đăng ký ngay'}
                     </Link>
                   </p>
+
+                  {!register && (
+                    <div className="demo-login-box">
+                      <div className="demo-login-divider">
+                        <span>TRẢI NGHIỆM NHANH (DEMO MODE)</span>
+                      </div>
+                      <p className="demo-login-hint">
+                        Không cần tài khoản backend thật — bấm 1 chạm để thử nghiệm giao diện:
+                      </p>
+                      <div className="demo-login-buttons">
+                        <button
+                          type="button"
+                          className="demo-role-btn farmer"
+                          onClick={() => handleDemoLogin('FARMER')}
+                        >
+                          🌾 Đăng nhập thử vai Nông dân (Farmer Demo)
+                        </button>
+                        <button
+                          type="button"
+                          className="demo-role-btn trader"
+                          onClick={() => handleDemoLogin('TRADER')}
+                        >
+                          🚚 Đăng nhập thử vai Thương lái (Trader Demo)
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </>

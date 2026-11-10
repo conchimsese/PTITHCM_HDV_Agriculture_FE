@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import type { ListingDTO, OfferDTO } from '@agri/contracts';
+import type { CreateOfferRequest, ListingDTO, OfferDTO } from '@agri/contracts';
 import { tradingApi } from '../../../shared/api/runtime';
 import { formatArea, formatVND, formatYield } from '../../../shared/utils/formatters';
 
@@ -15,12 +15,20 @@ interface QuickOfferModalProps {
 export function QuickOfferModal({ listing, isOpen, onClose, onSuccess }: QuickOfferModalProps) {
   const queryClient = useQueryClient();
   const [createdOffer, setCreatedOffer] = useState<OfferDTO | null>(null);
+  const [offeredPriceInput, setOfferedPriceInput] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Sync price input when listing changes
+  useEffect(() => {
+    if (listing) {
+      setOfferedPriceInput(listing.expectedPrice);
+    }
+  }, [listing]);
+
   const offerMutation = useMutation({
-    mutationFn: async (listingId: string) => {
+    mutationFn: async (payload: CreateOfferRequest) => {
       const idempotencyKey = crypto.randomUUID();
-      return tradingApi.createOffer({ listingId }, idempotencyKey);
+      return tradingApi.createOffer(payload, idempotencyKey);
     },
     onSuccess: (offer) => {
       setCreatedOffer(offer);
@@ -29,7 +37,11 @@ export function QuickOfferModal({ listing, isOpen, onClose, onSuccess }: QuickOf
       onSuccess?.(offer);
     },
     onError: (err: Error) => {
-      if (err.message.includes('SELF_OFFER_NOT_ALLOWED')) {
+      if (err.message.includes('PENDING_OFFER_EXISTS')) {
+        setErrorMessage(
+          'Bạn đã có 1 báo giá đang chờ duyệt trên bài đăng này. Vui lòng chờ nông dân phản hồi hoặc hủy báo giá cũ trước khi gửi lại.',
+        );
+      } else if (err.message.includes('SELF_OFFER_NOT_ALLOWED')) {
         setErrorMessage('Bạn không thể gửi báo giá cho bài đăng của chính mình.');
       } else if (err.message.includes('LISTING_NOT_OPEN')) {
         setErrorMessage('Bài đăng hiện không còn mở nhận báo giá (đã cọc hoặc đã bán).');
@@ -47,11 +59,47 @@ export function QuickOfferModal({ listing, isOpen, onClose, onSuccess }: QuickOf
     onClose();
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9.]/g, '');
+    setOfferedPriceInput(raw);
+    setErrorMessage(null);
+  };
+
+  const handlePriceBlur = () => {
+    if (!offeredPriceInput) return;
+    const num = parseFloat(offeredPriceInput);
+    if (!isNaN(num) && num > 0) {
+      setOfferedPriceInput(num.toFixed(2));
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-    offerMutation.mutate(listing.listingId);
+
+    let cleanPrice = offeredPriceInput.trim();
+    const num = parseFloat(cleanPrice);
+    if (isNaN(num) || num <= 0) {
+      setErrorMessage('Giá đề xuất thu mua phải là số tiền dương.');
+      return;
+    }
+    if (!cleanPrice.includes('.')) {
+      cleanPrice = `${cleanPrice}.00`;
+    }
+
+    offerMutation.mutate({
+      listingId: listing.listingId,
+      offeredPrice: cleanPrice,
+    });
   };
+
+  // Compare diff between offered and expected price
+  const expectedNum = parseFloat(listing.expectedPrice) || 0;
+  const offeredNum = parseFloat(offeredPriceInput) || 0;
+  const priceDiffPct =
+    expectedNum > 0 && offeredNum > 0
+      ? Math.round(((offeredNum - expectedNum) / expectedNum) * 100)
+      : 0;
 
   return (
     <div className="modal-backdrop" onClick={handleClose} aria-hidden="true">
@@ -78,14 +126,17 @@ export function QuickOfferModal({ listing, isOpen, onClose, onSuccess }: QuickOf
             </span>
             <h3 id="modal-title">Gửi báo giá thành công!</h3>
             <p className="success-message">
-              Đề xuất quan tâm thu mua lúa <strong>{listing.seedType}</strong> đã được gửi tới nông
-              dân. Khi nông dân chấp nhận, phòng trò chuyện sẽ tự động được mở để hai bên thương
-              lượng.
+              Đề xuất thu mua lúa <strong>{listing.seedType}</strong> với mức giá{' '}
+              <strong>{formatVND(createdOffer.offeredPrice)}</strong> đã được gửi tới nông dân.
             </p>
             <div className="offer-summary-card">
               <div className="summary-row">
                 <span>Mã báo giá:</span>
                 <code>{createdOffer.offerId.slice(0, 8)}…</code>
+              </div>
+              <div className="summary-row">
+                <span>Giá bạn đề xuất:</span>
+                <strong className="summary-highlight">{formatVND(createdOffer.offeredPrice)}</strong>
               </div>
               <div className="summary-row">
                 <span>Trạng thái:</span>
@@ -110,7 +161,7 @@ export function QuickOfferModal({ listing, isOpen, onClose, onSuccess }: QuickOf
               <div>
                 <h3 id="modal-title">Gửi báo giá thu mua lúa</h3>
                 <p className="modal-desc">
-                  Bày tỏ ý định thu mua sản phẩm từ nông dân theo thông tin chào bán
+                  Thương lái có thể đề xuất mức giá thu mua mong muốn (bằng, cao hơn hoặc thấp hơn giá chào bán)
                 </p>
               </div>
             </div>
@@ -125,7 +176,10 @@ export function QuickOfferModal({ listing, isOpen, onClose, onSuccess }: QuickOf
             <div className="produce-recap-card">
               <div className="recap-header">
                 <span className="recap-title">{listing.seedType}</span>
-                <span className="recap-price">{formatVND(listing.expectedPrice)}</span>
+                <div className="recap-price-block">
+                  <span className="recap-price-label">Giá mong muốn của nông dân:</span>
+                  <span className="recap-price">{formatVND(listing.expectedPrice)}</span>
+                </div>
               </div>
               <div className="recap-details">
                 <div className="detail-item">
@@ -145,17 +199,55 @@ export function QuickOfferModal({ listing, isOpen, onClose, onSuccess }: QuickOf
               </div>
             </div>
 
+            {/* Price Counter-Offer Input */}
+            <div className="offer-price-input-section">
+              <label className="field-label" htmlFor="offeredPrice">
+                Mức giá bạn đề xuất thu mua (VND) <span className="required">*</span>
+              </label>
+              <div className="price-input-wrapper">
+                <input
+                  id="offeredPrice"
+                  type="text"
+                  value={offeredPriceInput}
+                  onChange={handlePriceChange}
+                  onBlur={handlePriceBlur}
+                  placeholder="Ví dụ: 4500000.00"
+                  required
+                  className="form-input"
+                />
+                <span className="currency-suffix">VND</span>
+              </div>
+
+              {offeredPriceInput && (
+                <div className="price-feedback-row">
+                  <span className="preview-tag">
+                    Quy đổi: <strong>{formatVND(offeredPriceInput)}</strong>
+                  </span>
+                  {priceDiffPct === 0 ? (
+                    <span className="diff-badge equal">Bằng giá nông dân chào</span>
+                  ) : priceDiffPct > 0 ? (
+                    <span className="diff-badge higher">
+                      +{priceDiffPct}% (Trả giá cao hơn để ưu tiên chốt)
+                    </span>
+                  ) : (
+                    <span className="diff-badge lower">
+                      {priceDiffPct}% (Đề xuất thương lượng giá thấp hơn)
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
             <p className="form-note">
-              ℹ️ Sau khi gửi, nông dân sẽ nhận được thông báo về đề xuất thu mua của bạn. Báo giá
-              bắt đầu ở trạng thái <strong>PENDING</strong> không cần đặt cọc trước. Tiền cọc 5% sẽ
-              được xác lập sau khi hai bên chốt hợp đồng.
+              ℹ️ Báo giá bắt đầu ở trạng thái <strong>PENDING</strong> không cần nạp tiền cọc trước.
+              Nếu nông dân đồng ý, hệ thống mở phòng Chat để hai bên trao đổi chi tiết. Bạn có thể hủy đề xuất bất cứ lúc nào khi còn đang chờ duyệt.
             </p>
 
             <div className="modal-actions">
               <button
                 type="submit"
                 className="modal-btn primary"
-                disabled={offerMutation.isPending}
+                disabled={offerMutation.isPending || !offeredPriceInput}
               >
                 {offerMutation.isPending ? 'Đang gửi đề xuất…' : 'Xác nhận gửi báo giá'}
               </button>

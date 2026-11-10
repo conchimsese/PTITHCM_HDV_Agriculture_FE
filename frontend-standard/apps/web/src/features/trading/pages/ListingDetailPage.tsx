@@ -11,6 +11,7 @@ export function ListingDetailPage() {
   const location = useLocation();
   const session = useSession();
   const [offerModalOpen, setOfferModalOpen] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const { data: listing, isLoading, isError, error, refetch } = useListingDetail(listingId);
 
@@ -118,6 +119,38 @@ export function ListingDetailPage() {
             <span className={`status-pill large ${statusInfo.className}`}>{statusInfo.label}</span>
           </div>
         </div>
+
+        {/* Produce Photos Gallery */}
+        {listing.images && listing.images.length > 0 && (
+          <div className="detail-gallery">
+            <div className="gallery-main-view">
+              <img
+                src={listing.images[activeImageIndex] || listing.images[0]}
+                alt={`${listing.seedType} - Ảnh ${activeImageIndex + 1}`}
+                className="gallery-main-img"
+              />
+              <span className="gallery-badge">
+                Ảnh {activeImageIndex + 1} / {listing.images.length}
+              </span>
+            </div>
+
+            {listing.images.length > 1 && (
+              <div className="gallery-thumbnails-strip">
+                {listing.images.map((imgUrl, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={`gallery-thumb-btn ${idx === activeImageIndex ? 'active' : ''}`}
+                    onClick={() => setActiveImageIndex(idx)}
+                    title={`Xem ảnh ${idx + 1}`}
+                  >
+                    <img src={imgUrl} alt={`Thumbnail ${idx + 1}`} className="gallery-thumb-img" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Price & Primary CTA Banner */}
         <div className="detail-price-banner">

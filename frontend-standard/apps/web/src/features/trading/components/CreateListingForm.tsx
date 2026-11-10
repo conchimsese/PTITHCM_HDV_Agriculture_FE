@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCreateListing } from '../hooks/useCreateListing';
 import { formatVND } from '../../../shared/utils/formatters';
+import { tradingApi } from '../../../shared/api/runtime';
 
 // Sample plots/seasons for convenient testing and pre-filling
 const SAMPLE_PLOTS = [
@@ -29,14 +30,34 @@ const SAMPLE_PLOTS = [
 ];
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MAX_PHOTOS = 5;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MiB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export function CreateListingForm() {
   const [plotId, setPlotId] = useState('');
   const [cropSeasonId, setCropSeasonId] = useState('');
   const [priceInput, setPriceInput] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
   const createListingMutation = useCreateListing();
+
+  // Cleanup object URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach((url) => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, [previewUrls]);
 
   const handleSelectSample = (sample: (typeof SAMPLE_PLOTS)[0]) => {
     setPlotId(sample.plotId);
@@ -59,7 +80,55 @@ export function CreateListingForm() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFiles = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setValidationError(null);
+
+    const availableSlots = MAX_PHOTOS - selectedFiles.length;
+    if (availableSlots <= 0) {
+      setValidationError(`Bạn đã chọn đủ tối đa ${MAX_PHOTOS} ảnh nông sản.`);
+      return;
+    }
+
+    const rawList = Array.from(files);
+    const validFiles: File[] = [];
+
+    for (const file of rawList) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        setValidationError(`Định dạng "${file.name}" không hợp lệ. Chỉ chấp nhận JPG, PNG hoặc WebP.`);
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        setValidationError(`Ảnh "${file.name}" vượt quá dung lượng tối đa 5 MiB.`);
+        return;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length > availableSlots) {
+      setValidationError(`Chỉ có thể thêm thêm ${availableSlots} ảnh nữa (tối đa ${MAX_PHOTOS} ảnh/bài đăng).`);
+    }
+
+    const filesToAdd = validFiles.slice(0, availableSlots);
+    if (filesToAdd.length === 0) return;
+
+    const newPreviews = filesToAdd.map((file) => URL.createObjectURL(file));
+
+    setSelectedFiles((prev) => [...prev, ...filesToAdd]);
+    setPreviewUrls((prev) => [...prev, ...newPreviews]);
+  };
+
+  const removePhoto = (index: number) => {
+    const urlToRemove = previewUrls[index];
+    if (urlToRemove && urlToRemove.startsWith('blob:')) {
+      URL.revokeObjectURL(urlToRemove);
+    }
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+    setValidationError(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);
 
@@ -87,12 +156,32 @@ export function CreateListingForm() {
       cleanPrice = `${cleanPrice}.00`;
     }
 
-    createListingMutation.mutate({
-      plotId: cleanPlotId,
-      cropSeasonId: cleanCropSeasonId,
-      expectedPrice: cleanPrice,
-    });
+    if (selectedFiles.length === 0) {
+      setValidationError('Vui lòng chụp hoặc tải lên ít nhất 1 hình ảnh nông sản thực tế (tối thiểu 1, tối đa 5 ảnh).');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      // Step 1: Upload produce pictures to Cloudinary CDN via /api/v1/listings/upload
+      const uploadedUrls = await tradingApi.uploadImages(selectedFiles);
+
+      // Step 2: Create listing with uploaded image URLs
+      await createListingMutation.mutateAsync({
+        plotId: cleanPlotId,
+        cropSeasonId: cleanCropSeasonId,
+        expectedPrice: cleanPrice,
+        images: uploadedUrls,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Có lỗi xảy ra khi tải ảnh hoặc đăng bài.';
+      setValidationError(msg);
+    } finally {
+      setIsUploading(false);
+    }
   };
+
+  const isSubmitting = isUploading || createListingMutation.isPending;
 
   const errorMessage =
     validationError ||
@@ -131,7 +220,7 @@ export function CreateListingForm() {
       )}
 
       <form onSubmit={handleSubmit} className="listing-form">
-        <fieldset disabled={createListingMutation.isPending} className="form-fieldset">
+        <fieldset disabled={isSubmitting} className="form-fieldset">
           {/* Plot ID */}
           <label className="form-field">
             <span className="field-label">
@@ -176,6 +265,94 @@ export function CreateListingForm() {
             </span>
           </label>
 
+          {/* Facebook-Style Produce Picture Composer (System Color & Format) */}
+          <div className="form-field photo-upload-field">
+            <div className="photo-label-row">
+              <span className="field-label">
+                Hình ảnh thực tế nông sản <span className="required">*</span>
+              </span>
+              <span className="photo-counter-badge">
+                {selectedFiles.length}/{MAX_PHOTOS} ảnh
+                {selectedFiles.length === 0 && <span className="counter-warning"> (Cần ít nhất 1 ảnh)</span>}
+              </span>
+            </div>
+            <span className="field-hint">
+              Chụp ảnh thực tế hạt lúa, bông lúa tại ruộng hoặc kho trữ để thương lái dễ dàng thẩm định chất lượng (tối đa 5MB/ảnh, định dạng JPG/PNG/WebP).
+            </span>
+
+            {/* Thumbnail Preview Grid (Facebook-Style collage matching system theme) */}
+            {previewUrls.length > 0 && (
+              <div className="photo-preview-grid">
+                {previewUrls.map((url, idx) => (
+                  <div key={idx} className="photo-preview-card">
+                    <img
+                      src={url}
+                      alt={`Ảnh nông sản ${idx + 1}`}
+                      className="photo-preview-img"
+                    />
+                    {idx === 0 && <span className="photo-cover-tag">Ảnh bìa</span>}
+                    <button
+                      type="button"
+                      className="photo-remove-btn"
+                      onClick={() => removePhoto(idx)}
+                      title="Xóa ảnh này"
+                      aria-label={`Xóa ảnh ${idx + 1}`}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Action Buttons: Camera & Gallery */}
+            <div className="photo-actions-row">
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                capture="environment"
+                className="visually-hidden"
+                onChange={(e) => {
+                  handleFiles(e.target.files);
+                  e.target.value = '';
+                }}
+                disabled={selectedFiles.length >= MAX_PHOTOS || isSubmitting}
+              />
+              <button
+                type="button"
+                className="secondary-button photo-action-btn"
+                onClick={() => cameraInputRef.current?.click()}
+                disabled={selectedFiles.length >= MAX_PHOTOS || isSubmitting}
+              >
+                <span className="btn-icon" aria-hidden="true">📸</span>
+                <span>Chụp ảnh thực tế (Camera)</span>
+              </button>
+
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="visually-hidden"
+                onChange={(e) => {
+                  handleFiles(e.target.files);
+                  e.target.value = '';
+                }}
+                disabled={selectedFiles.length >= MAX_PHOTOS || isSubmitting}
+              />
+              <button
+                type="button"
+                className="secondary-button photo-action-btn"
+                onClick={() => galleryInputRef.current?.click()}
+                disabled={selectedFiles.length >= MAX_PHOTOS || isSubmitting}
+              >
+                <span className="btn-icon" aria-hidden="true">🖼️</span>
+                <span>Chọn từ thư viện máy</span>
+              </button>
+            </div>
+          </div>
+
           {/* Expected Price */}
           <label className="form-field">
             <span className="field-label">
@@ -219,11 +396,13 @@ export function CreateListingForm() {
             <button
               type="submit"
               className="primary-button submit-btn"
-              disabled={createListingMutation.isPending}
+              disabled={isSubmitting || selectedFiles.length === 0}
             >
-              {createListingMutation.isPending
-                ? 'Đang tạo bài đăng…'
-                : 'Xác nhận đăng bài bán lúa →'}
+              {isUploading
+                ? 'Đang tải ảnh lên hệ thống…'
+                : createListingMutation.isPending
+                  ? 'Đang tạo bài đăng…'
+                  : 'Xác nhận đăng bài bán lúa →'}
             </button>
             <Link to="/bai-dang" className="secondary-button cancel-btn">
               Hủy bỏ

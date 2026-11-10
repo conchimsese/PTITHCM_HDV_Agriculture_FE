@@ -10,6 +10,7 @@ import {
   pagedListingSchema,
   pagedOfferSchema,
   singleResponseSchema,
+  uploadImagesResponseSchema,
   type CreateListingRequest,
   type CreateOfferRequest,
   type FeedParams,
@@ -19,11 +20,13 @@ import {
   type OfferDTO,
   type OfferFilterQuery,
   type Page,
+  type UploadImagesResponse,
 } from '@agri/contracts';
 import type { ApiClient } from './http';
 
 export interface TradingApi {
   // ── Listings ──
+  uploadImages(files: File[], signal?: AbortSignal): Promise<string[]>;
   createListing(
     payload: CreateListingRequest,
     idempotencyKey?: string,
@@ -39,6 +42,8 @@ export interface TradingApi {
     signal?: AbortSignal,
   ): Promise<OfferDTO>;
   acceptOffer(offerId: string, signal?: AbortSignal): Promise<OfferDTO>;
+  rejectOffer(offerId: string, signal?: AbortSignal): Promise<OfferDTO>;
+  cancelOffer(offerId: string, signal?: AbortSignal): Promise<OfferDTO>;
   getOfferDetail(offerId: string, signal?: AbortSignal): Promise<OfferDTO>;
   listOffers(params?: OfferFilterQuery, signal?: AbortSignal): Promise<Page<OfferDTO>>;
 
@@ -57,6 +62,18 @@ function buildQuery(params: Record<string, unknown>): string {
 }
 
 export const createTradingApi = (http: ApiClient): TradingApi => ({
+  async uploadImages(files, signal) {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('images', file));
+    const res = await http.request<{ data: UploadImagesResponse }>('/api/v1/listings/upload', {
+      method: 'POST',
+      body: formData,
+      signal,
+      schema: singleResponseSchema(uploadImagesResponseSchema),
+    });
+    return res.data.urls;
+  },
+
   async createListing(payload, idempotencyKey, signal) {
     const valid = createListingRequestSchema.parse(payload);
     return http.request('/api/v1/listings', {
@@ -100,6 +117,28 @@ export const createTradingApi = (http: ApiClient): TradingApi => ({
   async acceptOffer(offerId, signal) {
     if (!offerId) throw new Error('offerId là bắt buộc');
     const res = await http.request(`/api/v1/offers/${encodeURIComponent(offerId)}/accept`, {
+      method: 'POST',
+      body: {},
+      signal,
+      schema: singleResponseSchema(offerDtoSchema),
+    });
+    return res.data;
+  },
+
+  async rejectOffer(offerId, signal) {
+    if (!offerId) throw new Error('offerId là bắt buộc');
+    const res = await http.request(`/api/v1/offers/${encodeURIComponent(offerId)}/reject`, {
+      method: 'POST',
+      body: {},
+      signal,
+      schema: singleResponseSchema(offerDtoSchema),
+    });
+    return res.data;
+  },
+
+  async cancelOffer(offerId, signal) {
+    if (!offerId) throw new Error('offerId là bắt buộc');
+    const res = await http.request(`/api/v1/offers/${encodeURIComponent(offerId)}/cancel`, {
       method: 'POST',
       body: {},
       signal,

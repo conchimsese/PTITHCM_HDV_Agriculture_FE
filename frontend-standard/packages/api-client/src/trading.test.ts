@@ -49,15 +49,32 @@ describe('Trading Service Contracts & API Adapters (contract.md v1.0.0)', () => 
       expect(detail.status).toBe('OPEN');
     });
 
+    it('uploads produce pictures (1 to 5 images) via multipart form data', async () => {
+      const dummyFile1 = new File(['fake-image-bytes-1'], 'produce1.jpg', { type: 'image/jpeg' });
+      const dummyFile2 = new File(['fake-image-bytes-2'], 'produce2.png', { type: 'image/png' });
+      const urls = await mockTradingApi.uploadImages([dummyFile1, dummyFile2]);
+      expect(urls.length).toBe(2);
+      expect(typeof urls[0]).toBe('string');
+
+      // Rejects empty image array
+      await expect(mockTradingApi.uploadImages([])).rejects.toThrow();
+
+      // Rejects > 5 images
+      const sixFiles = Array.from({ length: 6 }, (_, i) => new File(['bytes'], `img${i}.jpg`, { type: 'image/jpeg' }));
+      await expect(mockTradingApi.uploadImages(sixFiles)).rejects.toThrow();
+    });
+
     it('creates listing with 201 direct ListingDTO response', async () => {
       const newListing = await mockTradingApi.createListing({
         plotId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         cropSeasonId: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
         expectedPrice: '4500000.00',
+        images: ['https://images.unsplash.com/photo-1586201375761-83865001e31c'],
       });
       expect(listingDtoSchema.safeParse(newListing).success).toBe(true);
       expect(newListing.status).toBe('OPEN');
       expect(newListing.expectedPrice).toBe('4500000.00');
+      expect(newListing.images.length).toBe(1);
     });
 
     it('rejects invalid create listing payload before sending request', async () => {
@@ -72,6 +89,7 @@ describe('Trading Service Contracts & API Adapters (contract.md v1.0.0)', () => 
           plotId: 'not-a-uuid',
           cropSeasonId: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
           expectedPrice: '4500000.00',
+          images: ['https://example.com/1.jpg'],
         }),
       ).rejects.toThrow();
 
@@ -81,6 +99,17 @@ describe('Trading Service Contracts & API Adapters (contract.md v1.0.0)', () => 
           plotId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           cropSeasonId: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
           expectedPrice: 'invalid-price',
+          images: ['https://example.com/1.jpg'],
+        }),
+      ).rejects.toThrow();
+
+      // Missing images (must have at least 1)
+      await expect(
+        api.createListing({
+          plotId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          cropSeasonId: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
+          expectedPrice: '4500000.00',
+          images: [],
         }),
       ).rejects.toThrow();
 
@@ -89,12 +118,14 @@ describe('Trading Service Contracts & API Adapters (contract.md v1.0.0)', () => 
   });
 
   describe('Offer Endpoints (POST /api/v1/offers, POST /api/v1/offers/:id/accept, GET /api/v1/offers)', () => {
-    it('creates an offer with 201 direct OfferDTO response and PENDING status', async () => {
+    it('creates an offer with 201 direct OfferDTO response, custom offeredPrice, and PENDING status', async () => {
       const offer = await mockTradingApi.createOffer({
         listingId: '44444444-4444-4444-8444-444444444444',
+        offeredPrice: '4300000.00',
       });
       expect(offerDtoSchema.safeParse(offer).success).toBe(true);
       expect(offer.status).toBe('PENDING');
+      expect(offer.offeredPrice).toBe('4300000.00');
       expect(offer.depositAmount).toBe('0.00');
     });
 
@@ -102,6 +133,30 @@ describe('Trading Service Contracts & API Adapters (contract.md v1.0.0)', () => 
       const accepted = await mockTradingApi.acceptOffer('0193132e-5000-7000-8000-000000000001');
       expect(accepted.status).toBe('ACCEPTED');
       expect(offerDtoSchema.safeParse(accepted).success).toBe(true);
+    });
+
+    it('rejects a pending offer by farmer, transitioning status to REJECTED', async () => {
+      const rejected = await mockTradingApi.rejectOffer('0193132e-5000-7000-8000-000000000003');
+      expect(rejected.status).toBe('REJECTED');
+      expect(offerDtoSchema.safeParse(rejected).success).toBe(true);
+    });
+
+    it('cancels a pending offer by trader, transitioning status to CANCELLED', async () => {
+      const freshOffer = await mockTradingApi.createOffer({
+        listingId: '44444444-4444-4444-8444-444444444444',
+        offeredPrice: '4100000.00',
+      });
+      const cancelled = await mockTradingApi.cancelOffer(freshOffer.offerId);
+      expect(cancelled.status).toBe('CANCELLED');
+    });
+
+    it('prevents rejecting or cancelling an accepted offer', async () => {
+      await expect(
+        mockTradingApi.rejectOffer('0193132e-5000-7000-8000-000000000002'),
+      ).rejects.toThrow();
+      await expect(
+        mockTradingApi.cancelOffer('0193132e-5000-7000-8000-000000000002'),
+      ).rejects.toThrow();
     });
 
     it('lists offers with pagedOfferSchema format and filters by listingId', async () => {
@@ -128,6 +183,7 @@ describe('Trading Service Contracts & API Adapters (contract.md v1.0.0)', () => 
         latitude: 10.762622,
         longitude: 106.660172,
         expectedPrice: '4500000.00',
+        images: ['https://example.com/produce.jpg'],
         status: 'OPEN',
       };
 
@@ -148,6 +204,7 @@ describe('Trading Service Contracts & API Adapters (contract.md v1.0.0)', () => 
           plotId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           cropSeasonId: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
           expectedPrice: '4500000.00',
+          images: ['https://example.com/produce.jpg'],
         },
         'idempotency-uuid-1234',
       );
@@ -173,6 +230,7 @@ describe('Trading Service Contracts & API Adapters (contract.md v1.0.0)', () => 
           listingId: '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
           farmerId: '4a72d3e1-2f3b-48d6-95f3-f5c225381180',
           traderId: '8b3f2c5d-91b4-4e78-9e54-5d9c223a7891',
+          offeredPrice: '4200000.00',
           depositAmount: '0.00',
           status: 'ACCEPTED',
           createdAt: '2026-11-09T08:35:00.000Z',
