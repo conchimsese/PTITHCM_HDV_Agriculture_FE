@@ -60,7 +60,10 @@ describe('Trading Service Contracts & API Adapters (contract.md v1.0.0)', () => 
       await expect(mockTradingApi.uploadImages([])).rejects.toThrow();
 
       // Rejects > 5 images
-      const sixFiles = Array.from({ length: 6 }, (_, i) => new File(['bytes'], `img${i}.jpg`, { type: 'image/jpeg' }));
+      const sixFiles = Array.from(
+        { length: 6 },
+        (_, i) => new File(['bytes'], `img${i}.jpg`, { type: 'image/jpeg' }),
+      );
       await expect(mockTradingApi.uploadImages(sixFiles)).rejects.toThrow();
     });
 

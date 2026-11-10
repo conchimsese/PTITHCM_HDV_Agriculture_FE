@@ -70,9 +70,7 @@ export function ListingCard({ listing, userCoords, currentUserId, onMakeOffer }:
             loading="lazy"
           />
           {listing.images.length > 1 && (
-            <span className="card-photo-count">
-              📷 {listing.images.length} ảnh
-            </span>
+            <span className="card-photo-count">📷 {listing.images.length} ảnh</span>
           )}
         </div>
       )}

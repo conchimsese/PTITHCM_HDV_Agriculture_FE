@@ -233,7 +233,15 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
                 </strong>
                 {session.isDemo && ' [Demo Mode]'}
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '8px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  width: '100%',
+                  marginTop: '8px',
+                }}
+              >
                 <button
                   type="button"
                   className="primary-button"

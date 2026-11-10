@@ -164,7 +164,10 @@ export const mockTradingApi: TradingApi = {
   async createListing(payload: CreateListingRequest): Promise<ListingDTO> {
     const valid = createListingRequestSchema.parse(payload);
     const newListing: ListingDTO = {
-      listingId: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
+      listingId:
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d',
       farmerId: '11111111-1111-4111-8111-111111111111',
       plotId: valid.plotId,
       cropSeasonId: valid.cropSeasonId,
@@ -174,9 +177,12 @@ export const mockTradingApi: TradingApi = {
       latitude: 10.762622,
       longitude: 106.660172,
       expectedPrice: valid.expectedPrice,
-      images: valid.images && valid.images.length > 0 ? valid.images : [
-        'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80',
-      ],
+      images:
+        valid.images && valid.images.length > 0
+          ? valid.images
+          : [
+              'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80',
+            ],
       status: 'OPEN',
     };
     mockListings.unshift(newListing);
@@ -246,7 +252,10 @@ export const mockTradingApi: TradingApi = {
     }
 
     const newOffer: OfferDTO = {
-      offerId: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : '5f1a329d-ef81-4f1c-99f5-4f7f6a73c091',
+      offerId:
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : '5f1a329d-ef81-4f1c-99f5-4f7f6a73c091',
       listingId: valid.listingId,
       farmerId: listing.farmerId,
       traderId: '22222222-2222-4222-8222-222222222222',
@@ -278,7 +287,11 @@ export const mockTradingApi: TradingApi = {
       throw new ApiError(404, 'OFFER_NOT_FOUND', 'Không tìm thấy báo giá');
     }
     if (found.status === 'ACCEPTED') {
-      throw new ApiError(400, 'INVALID_STATE_TRANSITION', 'Báo giá đã được chấp thuận, không thể từ chối');
+      throw new ApiError(
+        400,
+        'INVALID_STATE_TRANSITION',
+        'Báo giá đã được chấp thuận, không thể từ chối',
+      );
     }
     found.status = 'REJECTED';
     found.updatedAt = new Date().toISOString();
@@ -292,7 +305,11 @@ export const mockTradingApi: TradingApi = {
       throw new ApiError(404, 'OFFER_NOT_FOUND', 'Không tìm thấy báo giá');
     }
     if (found.status === 'ACCEPTED') {
-      throw new ApiError(400, 'INVALID_STATE_TRANSITION', 'Báo giá đã được chấp thuận, không thể hủy bỏ');
+      throw new ApiError(
+        400,
+        'INVALID_STATE_TRANSITION',
+        'Báo giá đã được chấp thuận, không thể hủy bỏ',
+      );
     }
     found.status = 'CANCELLED';
     found.updatedAt = new Date().toISOString();

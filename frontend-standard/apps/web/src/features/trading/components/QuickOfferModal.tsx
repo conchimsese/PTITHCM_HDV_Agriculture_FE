@@ -136,7 +136,9 @@ export function QuickOfferModal({ listing, isOpen, onClose, onSuccess }: QuickOf
               </div>
               <div className="summary-row">
                 <span>Giá bạn đề xuất:</span>
-                <strong className="summary-highlight">{formatVND(createdOffer.offeredPrice)}</strong>
+                <strong className="summary-highlight">
+                  {formatVND(createdOffer.offeredPrice)}
+                </strong>
               </div>
               <div className="summary-row">
                 <span>Trạng thái:</span>
@@ -161,7 +163,8 @@ export function QuickOfferModal({ listing, isOpen, onClose, onSuccess }: QuickOf
               <div>
                 <h3 id="modal-title">Gửi báo giá thu mua lúa</h3>
                 <p className="modal-desc">
-                  Thương lái có thể đề xuất mức giá thu mua mong muốn (bằng, cao hơn hoặc thấp hơn giá chào bán)
+                  Thương lái có thể đề xuất mức giá thu mua mong muốn (bằng, cao hơn hoặc thấp hơn
+                  giá chào bán)
                 </p>
               </div>
             </div>
@@ -240,7 +243,8 @@ export function QuickOfferModal({ listing, isOpen, onClose, onSuccess }: QuickOf
 
             <p className="form-note">
               ℹ️ Báo giá bắt đầu ở trạng thái <strong>PENDING</strong> không cần nạp tiền cọc trước.
-              Nếu nông dân đồng ý, hệ thống mở phòng Chat để hai bên trao đổi chi tiết. Bạn có thể hủy đề xuất bất cứ lúc nào khi còn đang chờ duyệt.
+              Nếu nông dân đồng ý, hệ thống mở phòng Chat để hai bên trao đổi chi tiết. Bạn có thể
+              hủy đề xuất bất cứ lúc nào khi còn đang chờ duyệt.
             </p>
 
             <div className="modal-actions">

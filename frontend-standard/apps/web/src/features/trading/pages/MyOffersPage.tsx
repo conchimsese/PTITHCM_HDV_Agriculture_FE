@@ -256,7 +256,8 @@ export function MyOffersPage() {
 
             <div className="produce-recap-card">
               <p style={{ margin: 0, fontSize: '13px', color: '#607267', lineHeight: 1.5 }}>
-                Báo giá sẽ chuyển sang trạng thái <strong>CANCELLED</strong>. Bạn có thể gửi lại báo giá mới với mức giá điều chỉnh trên bài đăng này bất cứ lúc nào.
+                Báo giá sẽ chuyển sang trạng thái <strong>CANCELLED</strong>. Bạn có thể gửi lại báo
+                giá mới với mức giá điều chỉnh trên bài đăng này bất cứ lúc nào.
               </p>
             </div>
 

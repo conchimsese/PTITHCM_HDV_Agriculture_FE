@@ -95,7 +95,9 @@ export function CreateListingForm() {
 
     for (const file of rawList) {
       if (!ALLOWED_TYPES.includes(file.type)) {
-        setValidationError(`Định dạng "${file.name}" không hợp lệ. Chỉ chấp nhận JPG, PNG hoặc WebP.`);
+        setValidationError(
+          `Định dạng "${file.name}" không hợp lệ. Chỉ chấp nhận JPG, PNG hoặc WebP.`,
+        );
         return;
       }
       if (file.size > MAX_FILE_SIZE) {
@@ -106,7 +108,9 @@ export function CreateListingForm() {
     }
 
     if (validFiles.length > availableSlots) {
-      setValidationError(`Chỉ có thể thêm thêm ${availableSlots} ảnh nữa (tối đa ${MAX_PHOTOS} ảnh/bài đăng).`);
+      setValidationError(
+        `Chỉ có thể thêm thêm ${availableSlots} ảnh nữa (tối đa ${MAX_PHOTOS} ảnh/bài đăng).`,
+      );
     }
 
     const filesToAdd = validFiles.slice(0, availableSlots);
@@ -157,7 +161,9 @@ export function CreateListingForm() {
     }
 
     if (selectedFiles.length === 0) {
-      setValidationError('Vui lòng chụp hoặc tải lên ít nhất 1 hình ảnh nông sản thực tế (tối thiểu 1, tối đa 5 ảnh).');
+      setValidationError(
+        'Vui lòng chụp hoặc tải lên ít nhất 1 hình ảnh nông sản thực tế (tối thiểu 1, tối đa 5 ảnh).',
+      );
       return;
     }
 
@@ -273,11 +279,14 @@ export function CreateListingForm() {
               </span>
               <span className="photo-counter-badge">
                 {selectedFiles.length}/{MAX_PHOTOS} ảnh
-                {selectedFiles.length === 0 && <span className="counter-warning"> (Cần ít nhất 1 ảnh)</span>}
+                {selectedFiles.length === 0 && (
+                  <span className="counter-warning"> (Cần ít nhất 1 ảnh)</span>
+                )}
               </span>
             </div>
             <span className="field-hint">
-              Chụp ảnh thực tế hạt lúa, bông lúa tại ruộng hoặc kho trữ để thương lái dễ dàng thẩm định chất lượng (tối đa 5MB/ảnh, định dạng JPG/PNG/WebP).
+              Chụp ảnh thực tế hạt lúa, bông lúa tại ruộng hoặc kho trữ để thương lái dễ dàng thẩm
+              định chất lượng (tối đa 5MB/ảnh, định dạng JPG/PNG/WebP).
             </span>
 
             {/* Thumbnail Preview Grid (Facebook-Style collage matching system theme) */}
@@ -285,11 +294,7 @@ export function CreateListingForm() {
               <div className="photo-preview-grid">
                 {previewUrls.map((url, idx) => (
                   <div key={idx} className="photo-preview-card">
-                    <img
-                      src={url}
-                      alt={`Ảnh nông sản ${idx + 1}`}
-                      className="photo-preview-img"
-                    />
+                    <img src={url} alt={`Ảnh nông sản ${idx + 1}`} className="photo-preview-img" />
                     {idx === 0 && <span className="photo-cover-tag">Ảnh bìa</span>}
                     <button
                       type="button"
@@ -325,7 +330,9 @@ export function CreateListingForm() {
                 onClick={() => cameraInputRef.current?.click()}
                 disabled={selectedFiles.length >= MAX_PHOTOS || isSubmitting}
               >
-                <span className="btn-icon" aria-hidden="true">📸</span>
+                <span className="btn-icon" aria-hidden="true">
+                  📸
+                </span>
                 <span>Chụp ảnh thực tế (Camera)</span>
               </button>
 
@@ -347,7 +354,9 @@ export function CreateListingForm() {
                 onClick={() => galleryInputRef.current?.click()}
                 disabled={selectedFiles.length >= MAX_PHOTOS || isSubmitting}
               >
-                <span className="btn-icon" aria-hidden="true">🖼️</span>
+                <span className="btn-icon" aria-hidden="true">
+                  🖼️
+                </span>
                 <span>Chọn từ thư viện máy</span>
               </button>
             </div>

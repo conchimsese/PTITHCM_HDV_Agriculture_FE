@@ -263,7 +263,8 @@ export function ListingOffersPage() {
               <div>
                 <h3 id="confirm-modal-title">Chấp nhận báo giá này?</h3>
                 <p className="modal-desc">
-                  Thương lái: <code>{confirmOffer.traderId.slice(0, 8)}…</code> · Giá đề xuất: <strong>{formatVND(confirmOffer.offeredPrice)}</strong>
+                  Thương lái: <code>{confirmOffer.traderId.slice(0, 8)}…</code> · Giá đề xuất:{' '}
+                  <strong>{formatVND(confirmOffer.offeredPrice)}</strong>
                 </p>
               </div>
             </div>
@@ -290,7 +291,8 @@ export function ListingOffersPage() {
                   Phòng hội thoại Chat bảo mật giữa bạn và thương lái sẽ tự động được khởi tạo.
                 </li>
                 <li>
-                  Hai bên thương lượng chốt ngày cắt lúa, phương thức vận chuyển và điều khoản hợp đồng.
+                  Hai bên thương lượng chốt ngày cắt lúa, phương thức vận chuyển và điều khoản hợp
+                  đồng.
                 </li>
                 <li>
                   Báo giá này sẽ chuyển sang trạng thái <strong>ACCEPTED</strong>.
@@ -347,7 +349,11 @@ export function ListingOffersPage() {
             </button>
 
             <div className="modal-header">
-              <span className="modal-leaf" aria-hidden="true" style={{ background: '#fdf2f2', color: '#a83939' }}>
+              <span
+                className="modal-leaf"
+                aria-hidden="true"
+                style={{ background: '#fdf2f2', color: '#a83939' }}
+              >
                 🚫
               </span>
               <div>
@@ -366,7 +372,9 @@ export function ListingOffersPage() {
 
             <div className="produce-recap-card">
               <p style={{ margin: 0, fontSize: '13px', color: '#607267', lineHeight: 1.5 }}>
-                Khi bạn từ chối, báo giá này sẽ chuyển sang trạng thái <strong>REJECTED</strong>. Thương lái sẽ nhận được thông báo và có thể điều chỉnh để gửi lại mức giá cạnh tranh hơn.
+                Khi bạn từ chối, báo giá này sẽ chuyển sang trạng thái <strong>REJECTED</strong>.
+                Thương lái sẽ nhận được thông báo và có thể điều chỉnh để gửi lại mức giá cạnh tranh
+                hơn.
               </p>
             </div>
 
