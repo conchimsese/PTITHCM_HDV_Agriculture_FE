@@ -6,12 +6,13 @@ export function DashboardPage() {
   if (!session) return null;
   const farmer = session.role === 'FARMER',
     trader = session.role === 'TRADER';
+  if (farmer) return <FarmerDashboard demo={Boolean(session.isDemo)} />;
   return (
     <div className="dashboard">
       <div className="dash-heading">
         <div>
           <p className="dash-kicker">RUỘNG LÚA VIỆT · TỔNG QUAN</p>
-          <h1>Chào {farmer ? 'nhà nông' : trader ? 'thương lái' : 'quản trị viên'}!</h1>
+          <h1>Chào {trader ? 'thương lái' : 'quản trị viên'}!</h1>
           <p>Theo dõi công việc và kết nối trong từng mùa vụ.</p>
         </div>
         <span className="dash-badge">{session.isDemo ? 'DỮ LIỆU MẪU' : 'TÀI KHOẢN CỦA BẠN'}</span>
@@ -73,6 +74,72 @@ export function DashboardPage() {
         </section>
       </div>
       <p className="dash-footer">Cùng nhau xây dựng một mùa vụ bền vững.</p>
+    </div>
+  );
+}
+
+const farmingActions = [
+  { to: '/nhat-ky', label: 'Ghi việc đã làm', icon: '▤' },
+  { to: '/chi-phi', label: 'Ghi chi phí', icon: '₫' },
+  { to: '/ruong-vu', label: 'Xem ruộng lúa', icon: '♧' },
+  { to: '/bai-dang/tao-moi', label: 'Đăng bán lúa', icon: '+' },
+];
+
+function FarmerDashboard({ demo }: { demo: boolean }) {
+  return (
+    <div className="season-dashboard">
+      <div className="season-dashboard-main">
+        <header>
+          <p className="dash-kicker">BẢNG TIN MÙA VỤ</p>
+          <h1>Hôm nay ruộng lúa thế nào?</h1>
+          <p>Theo dõi công việc và ghi chép theo từng mùa vụ.</p>
+        </header>
+
+        <section className="dash-card season-hero">
+          <p className="season-chip">{demo ? 'Mùa vụ minh họa' : 'Mùa vụ của bạn'}</p>
+          <h2>{demo ? 'Thu Đông 2026 · Ruộng A1' : 'Ruộng và mùa vụ'}</h2>
+          {demo && <p>Giống ST25 · 2.500 m²</p>}
+          <div className="season-links">
+            <Link className="season-primary" to="/ruong-vu">
+              Xem mùa vụ →
+            </Link>
+            <Link to="/nhat-ky">Ghi nhật ký</Link>
+          </div>
+        </section>
+
+        <section className="dash-card">
+          <h2>Hôm nay bà con muốn làm gì?</h2>
+          <div className="season-actions">
+            {farmingActions.map(({ to, label, icon }) => (
+              <Link key={to} to={to}>
+                <span aria-hidden="true">{icon}</span>
+                {label}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="dash-card">
+          <h2>Nhật ký canh tác</h2>
+          <p>Xem lại các công việc đã ghi theo từng ruộng và mùa vụ.</p>
+          <Link to="/nhat-ky">Xem nhật ký →</Link>
+        </section>
+      </div>
+
+      <aside className="season-dashboard-aside" aria-label="Thông tin mùa vụ">
+        <section className="dash-card">
+          <h2>Ruộng đang theo dõi</h2>
+          <p>{demo ? 'Ruộng A1 · Thu Đông 2026 (mẫu)' : 'Chọn ruộng để xem mùa vụ.'}</p>
+          <Link to="/ruong-vu">Xem danh sách ruộng →</Link>
+        </section>
+        <section className="dash-card">
+          <h2>Công việc liên quan</h2>
+          <div className="season-related">
+            <Link to="/chi-phi">Chi phí canh tác →</Link>
+            <Link to="/bai-dang">Bài đăng bán lúa →</Link>
+          </div>
+        </section>
+      </aside>
     </div>
   );
 }

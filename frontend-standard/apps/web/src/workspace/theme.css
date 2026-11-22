@@ -82,3 +82,35 @@ body,
     display: none;
   }
 }
+
+@media (min-width: 901px) {
+  .web-layout .layout-sidebar {
+    width: 218px;
+    min-width: 218px;
+    background: #fff;
+    color: var(--v5-forest);
+    border-right: 1px solid var(--v5-border);
+    box-shadow: none;
+  }
+
+  .web-layout .brand-title,
+  .web-layout .nav-item,
+  .web-layout .user-id {
+    color: var(--v5-forest);
+  }
+
+  .web-layout .sidebar-user,
+  .web-layout .nav-item:hover,
+  .web-layout .nav-item.active {
+    background: #e9f3e9;
+  }
+
+  .web-layout .sidebar-footer {
+    background: #fff;
+    border-top-color: var(--v5-border);
+  }
+
+  .web-layout .sidebar-logout-btn {
+    color: #a83939;
+  }
+}
