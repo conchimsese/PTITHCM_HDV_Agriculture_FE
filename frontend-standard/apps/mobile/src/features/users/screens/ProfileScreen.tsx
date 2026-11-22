@@ -6,6 +6,7 @@ import { Action, Failure, Loading, Screen, ui } from '../../../shared/ui/Screen'
 import { logoutUser, useMyProfile, usePublicProfile, useSession } from '../hooks/useUsers';
 import { ProfileEditor } from '../components/ProfileEditor';
 import { Avatar } from '../components/Avatar';
+import { NotificationEntry } from '../../notifications/screens/NotificationsScreen';
 export function ProfileScreen() {
   const session = useSession();
   const query = useMyProfile();
@@ -38,6 +39,7 @@ export function ProfileScreen() {
           </>
         )
       )}
+      <NotificationEntry />
       {session.role === 'ADMIN' && (
         <Action
           title="Quản lý tài khoản"

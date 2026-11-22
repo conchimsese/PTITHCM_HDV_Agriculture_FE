@@ -1,3 +1,4 @@
+import { NotificationsPage } from '../features/notifications/pages/NotificationsPage';
 import { ProfilePage, PublicProfilePage } from '../features/users/pages/ProfilePage';
 import { AccountsPage } from '../features/users/pages/AccountsPage';
 import { VerifyEmailPage } from '../features/users/pages/VerifyEmailPage';
@@ -30,6 +31,8 @@ export function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Auth Routes */}
+          <Route path="/thong-bao" element={<NotificationsPage />} />
+          <Route path="/thong-bao/:notificationId" element={<NotificationsPage />} />
           <Route path="/xac-minh-email" element={<VerifyEmailPage />} />
           <Route path="/tai-khoan" element={<ProfilePage />} />
           <Route path="/nguoi-dung/:accountId" element={<PublicProfilePage />} />
