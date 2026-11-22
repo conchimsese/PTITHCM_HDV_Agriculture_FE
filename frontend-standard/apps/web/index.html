@@ -2,16 +2,31 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <meta name="theme-color" content="#164735" />
     <meta
       name="description"
-      content="Kết nối nhà nông và thương lái cùng Ruộng Lúa Việt. Đăng ký và đăng nhập tài khoản của bạn."
+      content="Không gian làm việc cho nông dân, thương lái và quản trị viên."
     />
-    <title>Ruộng Lúa Việt · Tài khoản</title>
+    <title>Ruộng Lúa Việt · Không gian làm việc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/workspace/styles.css" />
+    <link rel="stylesheet" href="/src/workspace/mobile.css" />
+    <link rel="stylesheet" href="/src/workspace/v5.css" />
   </head>
   <body>
+    <div class="demo-ribbon">
+      <span class="status-dot"></span><strong>CHẾ ĐỘ DEMO</strong> · Demo dữ liệu mẫu — chưa kết nối
+      API, tiền cọc chỉ mô phỏng <span class="ribbon-side">BA–SOA Contract v2.1 · 19/10/2026</span>
+    </div>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="modal-root"></div>
+    <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+    <script type="module" src="/src/workspace/app.js"></script>
   </body>
 </html>
