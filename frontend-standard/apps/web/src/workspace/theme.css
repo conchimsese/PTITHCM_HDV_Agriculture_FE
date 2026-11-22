@@ -1,0 +1,84 @@
+:root {
+  --v5-forest: #164735;
+  --v5-green: #246b45;
+  --v5-mist: #f3f6f1;
+  --v5-border: #dce6dd;
+  --v5-accent: #d8ad47;
+  --v5-font: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif;
+}
+
+body,
+.web-layout,
+.auth-layout,
+.service-app {
+  font-family: var(--v5-font);
+  background-color: var(--v5-mist);
+}
+
+.web-layout .layout-sidebar {
+  background: var(--v5-forest);
+}
+
+.web-layout .layout-header {
+  border-bottom-color: var(--v5-border);
+}
+
+.web-layout .layout-content {
+  min-width: 0;
+}
+
+.web-layout .nav-item.active {
+  box-shadow: inset 3px 0 var(--v5-accent);
+}
+
+.auth-layout .auth-story {
+  background:
+    linear-gradient(180deg, #123b2cf2 15%, #16473566 100%),
+    url('./assets/rice_st25.svg') center bottom / cover;
+}
+
+.auth-layout .field-art {
+  display: none;
+}
+
+.auth-layout .auth-card {
+  padding: clamp(20px, 4vw, 40px);
+  background: #fff;
+  border: 1px solid var(--v5-border);
+  border-radius: 18px;
+  box-shadow: 0 8px 28px #153c2210;
+}
+
+.auth-layout .primary-button {
+  background: var(--v5-green);
+}
+
+.auth-layout :focus-visible,
+.web-layout :focus-visible,
+.service-app :focus-visible {
+  outline: 3px solid var(--v5-accent);
+  outline-offset: 2px;
+}
+
+.web-layout .dash-feature {
+  background:
+    linear-gradient(90deg, #164735 15%, #164735b8 100%),
+    url('./assets/rice_st25.svg') center / cover;
+}
+
+.service-app .panel {
+  border-color: var(--v5-border);
+  border-radius: 18px;
+}
+
+@media (max-width: 600px) {
+  .web-layout .layout-header {
+    gap: 8px;
+  }
+
+  .web-layout .header-platform,
+  .web-layout .header-separator,
+  .web-layout .header-status-indicator {
+    display: none;
+  }
+}
