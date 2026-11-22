@@ -49,6 +49,7 @@ export function WebLayout() {
     return <Outlet />;
   }
 
+
   const role = session.role;
   const userModules = modulesForRole(role);
   const homePath = '/';
@@ -101,7 +102,7 @@ export function WebLayout() {
                   [
                     'dashboard',
                     ...(role === 'FARMER'
-                      ? ['listings']
+                      ? ['listings', 'plots', 'journal', 'costs']
                       : role === 'TRADER'
                         ? ['marketplace', 'offers']
                         : []),

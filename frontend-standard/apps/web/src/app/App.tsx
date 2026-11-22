@@ -1,4 +1,5 @@
 import { DashboardPage } from '../features/users/pages/DemoPage';
+import { FarmingPage } from '../features/farming/pages/FarmingPage';
 import { ServiceLayout } from '../shared/ui/ServiceLayout';
 import { ChatPage } from '../features/chat/pages/ChatPage';
 import {
@@ -74,6 +75,9 @@ export function App() {
 
             {/* Farmer Routes */}
             <Route element={<RoleGuard allowedRoles={['FARMER']} />}>
+              <Route path="/ruong-vu" element={<FarmingPage page="plots" />} />
+              <Route path="/nhat-ky" element={<FarmingPage page="journal" />} />
+              <Route path="/chi-phi" element={<FarmingPage page="costs" />} />
               <Route path="/bai-dang" element={<MyListingsPage />} />
               <Route path="/bai-dang/tao-moi" element={<CreateListingPage />} />
               <Route path="/bai-dang/:listingId/bao-gia" element={<ListingOffersPage />} />
