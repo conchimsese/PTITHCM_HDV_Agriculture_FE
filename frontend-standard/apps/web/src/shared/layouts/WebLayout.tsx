@@ -51,7 +51,7 @@ export function WebLayout() {
 
   const role = session.role;
   const userModules = modulesForRole(role);
-  const homePath = role === 'FARMER' ? '/bai-dang' : '/thi-truong';
+  const homePath = '/';
 
   return (
     <div className={`web-layout ${mobileMenuOpen ? 'mobile-open' : ''}`}>
@@ -94,30 +94,43 @@ export function WebLayout() {
         {/* Navigation Items */}
         <nav className="sidebar-nav">
           <ul>
-            {userModules.map((item) => {
-              const path = modulePathMap[item.id] || `/${item.id}`;
-              const icon = moduleIconMap[item.id] || '•';
-              const isCurrent =
-                location.pathname === path ||
-                (path !== '/' && location.pathname.startsWith(`${path}/`));
+            {userModules
+              .filter(
+                (item) =>
+                  !session.isDemo ||
+                  [
+                    'dashboard',
+                    ...(role === 'FARMER'
+                      ? ['listings']
+                      : role === 'TRADER'
+                        ? ['marketplace', 'offers']
+                        : []),
+                  ].includes(item.id),
+              )
+              .map((item) => {
+                const path = modulePathMap[item.id] || `/${item.id}`;
+                const icon = moduleIconMap[item.id] || '•';
+                const isCurrent =
+                  location.pathname === path ||
+                  (path !== '/' && location.pathname.startsWith(`${path}/`));
 
-              return (
-                <li key={item.id}>
-                  <NavLink
-                    to={path}
-                    className={({ isActive }) =>
-                      `nav-item ${isActive || isCurrent ? 'active' : ''}`
-                    }
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <span className="nav-icon" aria-hidden="true">
-                      {icon}
-                    </span>
-                    <span className="nav-label">{item.label}</span>
-                  </NavLink>
-                </li>
-              );
-            })}
+                return (
+                  <li key={item.id}>
+                    <NavLink
+                      to={path}
+                      className={({ isActive }) =>
+                        `nav-item ${isActive || isCurrent ? 'active' : ''}`
+                      }
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span className="nav-icon" aria-hidden="true">
+                        {icon}
+                      </span>
+                      <span className="nav-label">{item.label}</span>
+                    </NavLink>
+                  </li>
+                );
+              })}
           </ul>
         </nav>
 
@@ -165,7 +178,8 @@ export function WebLayout() {
               </Link>
             )}
             <div className="header-status-indicator">
-              <span className="status-dot online" /> Đã kết nối
+              <span className="status-dot online" />{' '}
+              {session.isDemo ? 'Chế độ demo' : 'Phiên đăng nhập'}
             </div>
           </div>
         </header>

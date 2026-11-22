@@ -1,7 +1,13 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { FormEvent } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { getSession, setSession, setTokenPair, subscribeSession } from '@agri/api-client';
+import {
+  createDemoSession,
+  getSession,
+  setSession,
+  setTokenPair,
+  subscribeSession,
+} from '@agri/api-client';
 import { authApi, queryClient } from '../../../shared/api/runtime';
 import { GoogleSignIn } from '../components/GoogleSignIn';
 import './auth.css';
@@ -67,6 +73,25 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
       }
       if (password !== String(form.get('confirmPassword') ?? '')) {
         setError('Mật khẩu nhập lại chưa khớp.');
+        return;
+      }
+    }
+    if (
+      import.meta.env.DEV &&
+      ['localhost', '127.0.0.1'].includes(window.location.hostname) &&
+      !register &&
+      !verificationEmail &&
+      password === 'demo123'
+    ) {
+      const roles = {
+        'nongdan.demo': 'FARMER',
+        'thuonglai.demo': 'TRADER',
+        'admin.demo': 'ADMIN',
+      } as const;
+      const role = roles[identifier.toLowerCase() as keyof typeof roles];
+      if (role) {
+        queryClient.clear();
+        setSession(createDemoSession(role));
         return;
       }
     }
@@ -140,7 +165,8 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
     }
   }
 
-  if (session?.tokens) return <Navigate to="/chat" replace />;
+  if (session?.isDemo) return <Navigate to="/" replace />;
+  if (session?.tokens) return <Navigate to="/" replace />;
   return (
     <main className="auth-layout">
       <aside className="auth-story">
@@ -203,6 +229,15 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
                   ? 'Tạo tài khoản để cùng phát triển nông nghiệp Việt.'
                   : 'Đăng nhập để tiếp tục hành trình cùng Ruộng Lúa Việt.'}
           </p>
+          {import.meta.env.DEV &&
+            ['localhost', '127.0.0.1'].includes(window.location.hostname) &&
+            !register &&
+            !verificationEmail && (
+              <div className="alert alert-success" role="note">
+                Chế độ demo trên máy: nongdan.demo / thuonglai.demo / admin.demo, mật khẩu chung{' '}
+                <strong>demo123</strong>. Dữ liệu minh họa, không kết nối tài khoản thật.
+              </div>
+            )}
           {error && (
             <div className="alert alert-error" role="alert">
               {error}

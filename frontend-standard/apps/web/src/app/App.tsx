@@ -1,3 +1,4 @@
+import { DashboardPage } from '../features/users/pages/DemoPage';
 import { ServiceLayout } from '../shared/ui/ServiceLayout';
 import { ChatPage } from '../features/chat/pages/ChatPage';
 import {
@@ -30,7 +31,7 @@ function RootRedirect() {
   if (!session) {
     return <Navigate to="/dang-nhap" replace />;
   }
-  return <Navigate to={session.role === 'FARMER' ? '/bai-dang' : '/thi-truong'} replace />;
+  return <DashboardPage />;
 }
 
 export function App() {
@@ -53,6 +54,7 @@ export function App() {
           <Route path="/tai-khoan" element={<ProfilePage />} />
           <Route path="/nguoi-dung/:accountId" element={<PublicProfilePage />} />
           <Route path="/quan-ly-tai-khoan" element={<AccountsPage />} />
+          <Route path="/demo" element={<Navigate to="/" replace />} />
           <Route path="/dang-nhap" element={<AuthPage mode="login" />} />
           <Route path="/dang-ky" element={<AuthPage mode="register" />} />
 
