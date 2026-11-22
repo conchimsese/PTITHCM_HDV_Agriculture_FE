@@ -2,7 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { getSession, setSession, setTokenPair, subscribeSession } from '@agri/api-client';
-import { authApi } from '../../../shared/api/runtime';
+import { authApi, queryClient } from '../../../shared/api/runtime';
 import { GoogleSignIn } from '../components/GoogleSignIn';
 import './auth.css';
 
@@ -41,8 +41,14 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
     setNotice('');
     const password = String(form.get('password') ?? '');
     const identifier = value('identifier');
-    if (!verificationEmail && !register && !isEmail(identifier) && !isPhone(identifier)) {
-      setError('Vui lòng nhập số điện thoại Việt Nam hoặc địa chỉ email hợp lệ.');
+    if (
+      !verificationEmail &&
+      !register &&
+      !isEmail(identifier) &&
+      !isPhone(identifier) &&
+      !/^[a-zA-Z0-9_.-]{3,100}$/.test(identifier)
+    ) {
+      setError('Vui lòng nhập tên đăng nhập, số điện thoại hoặc địa chỉ email hợp lệ.');
       return;
     }
     if (register && !verificationEmail) {
@@ -128,6 +134,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
     } catch (reason) {
       setError(messageOf(reason));
     } finally {
+      queryClient.clear();
       setSession(null);
       setBusy(false);
     }
@@ -207,6 +214,9 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
           )}
           {session ? (
             <div className="session-card">
+              <Link className="primary-button button-link" to="/tai-khoan">
+                Đến hồ sơ cá nhân →
+              </Link>
               <span className="success-icon">✓</span>
               <p>
                 Tài khoản{' '}
@@ -226,6 +236,11 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
             </Link>
           ) : (
             <>
+              {!verificationEmail && (
+                <p className="auth-switch">
+                  <Link to="/xac-minh-email">Tôi cần xác minh email</Link>
+                </p>
+              )}
               {!verificationEmail && (
                 <nav className="auth-tabs" aria-label="Tài khoản">
                   <Link to="/dang-nhap" aria-current={!register ? 'page' : undefined}>
@@ -303,7 +318,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
                         </>
                       ) : (
                         <label className="form-field">
-                          Số điện thoại hoặc email
+                          Tên đăng nhập, số điện thoại hoặc email
                           <input
                             name="identifier"
                             autoComplete="username"

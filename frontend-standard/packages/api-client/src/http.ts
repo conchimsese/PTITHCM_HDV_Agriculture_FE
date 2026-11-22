@@ -16,6 +16,8 @@ export type ApiClient = ReturnType<typeof createApiClient>;
 type Options<T> = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
+  formData?: FormData;
+  responseType?: 'blob';
   signal?: AbortSignal;
   auth?: boolean;
   schema?: z.ZodType<T>;
@@ -39,14 +41,17 @@ export function createApiClient(config: {
       const token = config.getAccessToken();
       const headers: Record<string, string> = { Accept: 'application/json' };
       if (options.auth !== false && token) headers.Authorization = `Bearer ${token}`;
-      if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+      if (options.body !== undefined && !options.formData)
+        headers['Content-Type'] = 'application/json';
       if (options.idempotencyKey) headers['Idempotency-Key'] = options.idempotencyKey;
       let response: Response;
       try {
         response = await (config.fetchImpl ?? fetch)(`${baseUrl}${path}`, {
           method: options.method ?? 'GET',
           headers,
-          body: options.body === undefined ? undefined : JSON.stringify(options.body),
+          body:
+            options.formData ??
+            (options.body === undefined ? undefined : JSON.stringify(options.body)),
           signal: options.signal,
           credentials: 'omit',
         });
@@ -60,6 +65,7 @@ export function createApiClient(config: {
       }
       if (response.status === 401 && options.auth !== false) config.onUnauthorized?.(token);
       if (response.status === 204 && response.ok) return undefined as T;
+      if (response.ok && options.responseType === 'blob') return (await response.blob()) as T;
       const raw = await response.text();
       let data: unknown;
       try {
