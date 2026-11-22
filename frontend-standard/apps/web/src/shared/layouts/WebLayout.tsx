@@ -50,7 +50,7 @@ export function WebLayout() {
   const role = session.role;
   const modules = modulesForRole(role).filter(({ id }) => {
     if (!modulePathMap[id]) return false;
-    if (!session.isDemo || id === 'dashboard') return true;
+    if (!session.isDemo || id === 'dashboard' || (id === 'chat' && role !== 'ADMIN')) return true;
     if (role === 'FARMER') return ['plots', 'journal', 'costs', 'listings'].includes(id);
     return role === 'TRADER' && ['marketplace', 'offers'].includes(id);
   });

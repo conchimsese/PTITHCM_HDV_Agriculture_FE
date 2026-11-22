@@ -183,3 +183,56 @@
     font-size: 13px;
   }
 }
+
+.messenger {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.messenger.has-room {
+  grid-template-columns: minmax(170px, 0.85fr) minmax(0, 2fr) minmax(175px, 0.85fr);
+}
+.messenger .panel {
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+}
+.messenger .room-link {
+  border-radius: 10px;
+  padding: 12px;
+  text-decoration: none;
+}
+.messenger .room-link small {
+  display: block;
+  color: #65776a;
+}
+.messenger .room-link.active,
+.messenger .room-link:hover {
+  background: #e9f3e9;
+}
+.messenger-details {
+  overflow-wrap: anywhere;
+}
+.messenger-back {
+  display: none;
+}
+.messenger-thread .messages {
+  background: #f7faf6;
+  border-radius: 12px;
+  min-height: 200px;
+}
+@media (max-width: 800px) {
+  .messenger,
+  .messenger.has-room {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .messenger.has-room .messenger-list,
+  .messenger-empty {
+    display: none;
+  }
+  .messenger-back {
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+}
