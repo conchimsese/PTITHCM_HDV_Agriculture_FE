@@ -581,3 +581,72 @@ fieldset {
       box-shadow 0.15s;
   }
 }
+
+/* ─── Demo Mode Quick Access ────────────────────────────────────── */
+.demo-login-box {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px dashed #dce6dd;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.demo-login-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.demo-login-divider span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #246b45;
+  background-color: #edf5ed;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.demo-login-hint {
+  font-size: 12.5px;
+  color: #607267;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.demo-login-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.demo-role-btn {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #b9cbbd;
+  background-color: #f8faf7;
+  color: #164735;
+  transition: all 0.15s;
+}
+
+.demo-role-btn:hover {
+  background-color: #edf5ed;
+  border-color: #246b45;
+}
+
+.demo-role-btn.farmer {
+  border-left: 4px solid #246b45;
+}
+
+.demo-role-btn.trader {
+  border-left: 4px solid #d8ad47;
+}
