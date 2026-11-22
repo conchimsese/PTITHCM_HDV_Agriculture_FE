@@ -49,7 +49,6 @@ export function WebLayout() {
     return <Outlet />;
   }
 
-
   const role = session.role;
   const userModules = modulesForRole(role);
   const homePath = '/';
