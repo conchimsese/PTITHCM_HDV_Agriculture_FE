@@ -1,3 +1,4 @@
+import { UiIcon } from '../ui/UiIcon';
 import { useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { modulesForRole, roleLabels } from '@agri/contracts';
@@ -58,6 +59,7 @@ export function WebLayout() {
 
   const primaryLinks = primary.map((id) => (
     <NavLink key={id} to={modulePathMap[id]} end={id === 'dashboard'}>
+      <UiIcon name={id} />
       {primaryLabels[id]}
     </NavLink>
   ));
@@ -104,6 +106,7 @@ export function WebLayout() {
                 end={id === 'dashboard'}
                 onClick={() => setMenuOpen(false)}
               >
+                <UiIcon name={id} />
                 {label}
               </NavLink>
             ))}

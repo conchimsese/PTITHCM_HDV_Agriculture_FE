@@ -1,3 +1,4 @@
+import { UiIcon } from '../../../shared/ui/UiIcon';
 import { useState } from 'react';
 import { Link, NavLink, useParams } from 'react-router-dom';
 
@@ -5,12 +6,16 @@ const rooms = [
   {
     id: 'demo-st25',
     crop: 'ST25',
+    reply: 'Mình dự kiến thu hoạch vào thứ Sáu.',
+    followUp: 'Vậy mình ghé xem ruộng sáng thứ Năm nhé?',
     offer: 'BG-01',
     opening: 'Mình trao đổi về lịch thu hoạch ST25 nhé.',
   },
   {
     id: 'demo-om18',
     crop: 'OM18',
+    reply: 'Khoảng hai tuần nữa bạn nhé.',
+    followUp: 'Bạn báo giúp mình khi có lịch gặt nhé.',
     offer: 'BG-02',
     opening: 'Ruộng OM18 dự kiến thu hoạch khi nào?',
   },
@@ -25,10 +30,12 @@ export function DemoChat({ accountId }: { accountId: string }) {
       <p className="muted">Cuộc trò chuyện mẫu · Tin nhắn được lưu trong phiên trình duyệt.</p>
       <div className={room ? 'messenger has-room' : 'messenger'}>
         <aside className="panel messenger-list">
-          <h2>Cuộc trò chuyện</h2>
+          <h2>
+            <UiIcon name="chat" /> Cuộc trò chuyện
+          </h2>
           {rooms.map((item) => (
             <NavLink className="room-link" key={item.id} to={'/chat/' + item.id}>
-              Lúa {item.crop}
+              <UiIcon name="plots" /> Lúa {item.crop}
               <small>Báo giá {item.offer}</small>
             </NavLink>
           ))}
@@ -41,13 +48,16 @@ export function DemoChat({ accountId }: { accountId: string }) {
               room={room}
             />
             <aside className="panel messenger-details">
-              <h2>Thông tin trao đổi</h2>
+              <h2>
+                <UiIcon name="document" /> Thông tin trao đổi
+              </h2>
               <p>Giống lúa · {room.crop}</p>
               <p>Báo giá {room.offer} · Đã chấp nhận</p>
             </aside>
           </>
         ) : (
           <section className="panel messenger-empty">
+            <UiIcon name="chat" />
             <h2>{conversationId ? 'Không tìm thấy phòng mẫu' : 'Chọn cuộc trò chuyện'}</h2>
           </section>
         )}
@@ -76,6 +86,8 @@ function DemoThread({ storageKey, room }: { storageKey: string; room: (typeof ro
       <h2>Trao đổi về lúa {room.crop}</h2>
       <div className="messages" role="log">
         <article className="bubble">{room.opening}</article>
+        <article className="bubble mine">{room.reply}</article>
+        <article className="bubble">{room.followUp}</article>
         {messages.map((message, i) => (
           <article key={i} className="bubble mine">
             {message}
@@ -100,7 +112,9 @@ function DemoThread({ storageKey, room }: { storageKey: string; room: (typeof ro
             onChange={(event) => setDraft(event.target.value)}
           />
         </label>
-        <button disabled={!draft.trim()}>Gửi tin nhắn</button>
+        <button disabled={!draft.trim()}>
+          <UiIcon name="send" /> Gửi tin nhắn
+        </button>
       </form>
     </section>
   );

@@ -1,3 +1,4 @@
+import { UiIcon } from '../../../shared/ui/UiIcon';
 import { useState } from 'react';
 import { load, selectedPlot, selectedPlotKey } from '../../farming/demo';
 import { Link } from 'react-router-dom';
@@ -81,10 +82,10 @@ export function DashboardPage() {
 }
 
 const farmingActions = [
-  { to: '/nhat-ky', label: 'Ghi việc đã làm', icon: '▤' },
-  { to: '/chi-phi', label: 'Ghi chi phí', icon: '₫' },
-  { to: '/ruong-vu', label: 'Xem ruộng lúa', icon: '♧' },
-  { to: '/bai-dang/tao-moi', label: 'Đăng bán lúa', icon: '+' },
+  { to: '/nhat-ky', label: 'Ghi việc đã làm', icon: 'journal' },
+  { to: '/chi-phi', label: 'Ghi chi phí', icon: 'costs' },
+  { to: '/ruong-vu', label: 'Xem ruộng lúa', icon: 'plots' },
+  { to: '/bai-dang/tao-moi', label: 'Đăng bán lúa', icon: 'listings' },
 ];
 
 function FarmerDashboard({ demo }: { demo: boolean }) {
@@ -123,7 +124,7 @@ function FarmerDashboard({ demo }: { demo: boolean }) {
           <div className="season-actions">
             {farmingActions.map(({ to, label, icon }) => (
               <Link key={to} to={to}>
-                <span aria-hidden="true">{icon}</span>
+                <UiIcon name={icon} />
                 {label}
               </Link>
             ))}
