@@ -1,3 +1,6 @@
+import { UiIcon } from '../../../shared/ui/UiIcon';
+import { useState } from 'react';
+import { load, selectedPlot, selectedPlotKey } from '../../farming/demo';
 import { Link } from 'react-router-dom';
 import { useSession } from '../../../shared/hooks/useAuth';
 import './dashboard.css';
@@ -6,12 +9,13 @@ export function DashboardPage() {
   if (!session) return null;
   const farmer = session.role === 'FARMER',
     trader = session.role === 'TRADER';
+  if (farmer) return <FarmerDashboard demo={Boolean(session.isDemo)} />;
   return (
     <div className="dashboard">
       <div className="dash-heading">
         <div>
           <p className="dash-kicker">RUỘNG LÚA VIỆT · TỔNG QUAN</p>
-          <h1>Chào {farmer ? 'nhà nông' : trader ? 'thương lái' : 'quản trị viên'}!</h1>
+          <h1>Chào {trader ? 'thương lái' : 'quản trị viên'}!</h1>
           <p>Theo dõi công việc và kết nối trong từng mùa vụ.</p>
         </div>
         <span className="dash-badge">{session.isDemo ? 'DỮ LIỆU MẪU' : 'TÀI KHOẢN CỦA BẠN'}</span>
@@ -73,6 +77,112 @@ export function DashboardPage() {
         </section>
       </div>
       <p className="dash-footer">Cùng nhau xây dựng một mùa vụ bền vững.</p>
+    </div>
+  );
+}
+
+const farmingActions = [
+  { to: '/nhat-ky', label: 'Ghi việc đã làm', icon: 'journal' },
+  { to: '/chi-phi', label: 'Ghi chi phí', icon: 'costs' },
+  { to: '/ruong-vu', label: 'Xem ruộng lúa', icon: 'plots' },
+  { to: '/bai-dang/tao-moi', label: 'Đăng bán lúa', icon: 'listings' },
+];
+
+function FarmerDashboard({ demo }: { demo: boolean }) {
+  const [data] = useState(() => (demo ? load() : undefined));
+  const [plotId, setPlotId] = useState(() => data && selectedPlot(data)?.id);
+  const plot = data?.plots.find((item) => item.id === plotId);
+  const logs = data?.journal
+    .filter((item) => item.plotId === plotId && item.season === plot?.season)
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 3);
+  return (
+    <div className="season-dashboard">
+      <div className="season-dashboard-main">
+        <header>
+          <p className="dash-kicker">BẢNG TIN MÙA VỤ</p>
+          <h1>Hôm nay ruộng lúa thế nào?</h1>
+          <p>Theo dõi công việc và ghi chép theo từng mùa vụ.</p>
+        </header>
+
+        <section className="dash-card season-hero">
+          <p className="season-chip">{demo ? 'Mùa vụ minh họa' : 'Mùa vụ của bạn'}</p>
+          <h2>
+            {plot ? [plot.season || 'Chưa có mùa vụ', plot.name].join(' · ') : 'Ruộng và mùa vụ'}
+          </h2>
+          {plot && <p>{[plot.crop, plot.area].filter(Boolean).join(' · ')}</p>}
+          <div className="season-links">
+            <Link className="season-primary" to="/ruong-vu">
+              Xem mùa vụ →
+            </Link>
+            <Link to="/nhat-ky">Ghi nhật ký</Link>
+          </div>
+        </section>
+
+        <section className="dash-card">
+          <h2>Hôm nay bà con muốn làm gì?</h2>
+          <div className="season-actions">
+            {farmingActions.map(({ to, label, icon }) => (
+              <Link key={to} to={to}>
+                <UiIcon name={icon} />
+                {label}
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="dash-card">
+          <h2>Nhật ký canh tác</h2>
+          <div className="season-timeline">
+            {logs?.length ? (
+              logs.map((item) => (
+                <article key={item.id}>
+                  <strong>{item.detail}</strong>
+                  <small>
+                    {item.date} · {plot?.name}
+                  </small>
+                </article>
+              ))
+            ) : (
+              <p>Chưa có công việc được hiển thị cho mùa vụ này.</p>
+            )}
+          </div>
+          <Link to="/nhat-ky">Xem nhật ký →</Link>
+        </section>
+      </div>
+
+      <aside className="season-dashboard-aside" aria-label="Thông tin mùa vụ">
+        <section className="dash-card">
+          <h2>Ruộng đang theo dõi</h2>
+          {data && (
+            <label className="season-switch">
+              Ruộng đang chọn
+              <select
+                value={plotId}
+                onChange={(event) => {
+                  sessionStorage.setItem(selectedPlotKey, event.target.value);
+                  setPlotId(event.target.value);
+                }}
+              >
+                {data.plots.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} · {item.area}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <p>{plot?.season || 'Chọn ruộng để xem mùa vụ.'}</p>
+          <Link to="/ruong-vu">Xem danh sách ruộng →</Link>
+        </section>
+        <section className="dash-card">
+          <h2>Công việc liên quan</h2>
+          <div className="season-related">
+            <Link to="/chi-phi">Chi phí canh tác →</Link>
+            <Link to="/bai-dang">Bài đăng bán lúa →</Link>
+          </div>
+        </section>
+      </aside>
     </div>
   );
 }
