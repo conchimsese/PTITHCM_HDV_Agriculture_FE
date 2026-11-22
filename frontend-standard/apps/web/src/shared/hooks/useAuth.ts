@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSession, setSession, subscribeSession } from '@agri/api-client';
 import type { Role, Session } from '@agri/contracts';
-import { authApi } from '../api/runtime';
+import { authApi, queryClient } from '../api/runtime';
 
 /**
  * Reactive hook to access the current session from RAM store
@@ -35,6 +35,7 @@ export function useLogout() {
       // Even if server-side logout fails, clear local memory session
     } finally {
       setSession(null);
+      queryClient.clear();
       navigate('/dang-nhap', { replace: true });
     }
   };

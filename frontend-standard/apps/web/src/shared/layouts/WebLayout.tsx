@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { createDemoSession, setSession } from '@agri/api-client';
-import { modulesForRole, roleLabels, type Role } from '@agri/contracts';
+import { modulesForRole, roleLabels } from '@agri/contracts';
 import { useLogout, useSession } from '../hooks/useAuth';
 import './web-layout.css';
 
@@ -14,9 +13,9 @@ const modulePathMap: Record<string, string> = {
   journal: '/nhat-ky',
   costs: '/chi-phi',
   chat: '/chat',
-  contracts: '/hop-dong',
-  deposits: '/tien-coc',
-  disputes: '/tranh-chap',
+  contracts: '/payments',
+  deposits: '/payments',
+  disputes: '/payments',
   notifications: '/thong-bao',
   profile: '/tai-khoan',
   accounts: '/quan-ly-tai-khoan',
@@ -53,10 +52,6 @@ export function WebLayout() {
   const role = session.role;
   const userModules = modulesForRole(role);
   const homePath = role === 'FARMER' ? '/bai-dang' : '/thi-truong';
-
-  const handleSwitchDemoRole = (nextRole: Role) => {
-    setSession(createDemoSession(nextRole));
-  };
 
   return (
     <div className={`web-layout ${mobileMenuOpen ? 'mobile-open' : ''}`}>
@@ -128,26 +123,6 @@ export function WebLayout() {
 
         {/* Sidebar Footer with Demo Switcher & Logout */}
         <div className="sidebar-footer">
-          <div className="demo-switcher">
-            <span className="demo-label">Chuyển vai trò mẫu:</span>
-            <div className="demo-buttons">
-              <button
-                type="button"
-                className={`demo-btn ${role === 'FARMER' ? 'active' : ''}`}
-                onClick={() => handleSwitchDemoRole('FARMER')}
-              >
-                Nông dân
-              </button>
-              <button
-                type="button"
-                className={`demo-btn ${role === 'TRADER' ? 'active' : ''}`}
-                onClick={() => handleSwitchDemoRole('TRADER')}
-              >
-                Thương lái
-              </button>
-            </div>
-          </div>
-
           <button
             type="button"
             className="sidebar-logout-btn"
