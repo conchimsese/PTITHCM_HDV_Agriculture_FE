@@ -5,3 +5,6 @@ export * from './notifications';
 export * from './users';
 export * from './trading';
 export * from './mock';
+
+export * from './chat';
+export * from './payments';

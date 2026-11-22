@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { getSession, setSession, setTokenPair, subscribeSession } from '@agri/api-client';
 import { authApi, queryClient } from '../../../shared/api/runtime';
 import { GoogleSignIn } from '../components/GoogleSignIn';
@@ -140,6 +140,7 @@ function AuthScreen({ mode }: { mode: 'login' | 'register' }) {
     }
   }
 
+  if (session?.tokens) return <Navigate to="/chat" replace />;
   return (
     <main className="auth-layout">
       <aside className="auth-story">

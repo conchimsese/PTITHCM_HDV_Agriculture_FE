@@ -1,3 +1,6 @@
+import {ServiceLayout} from '../shared/ui/ServiceLayout';
+import {ChatPage} from '../features/chat/pages/ChatPage';
+import {PaymentsPage,ContractPage,CreateContractPage,DisputePage} from '../features/payments/pages/PaymentsPage';
 import { NotificationsPage } from '../features/notifications/pages/NotificationsPage';
 import { ProfilePage, PublicProfilePage } from '../features/users/pages/ProfilePage';
 import { AccountsPage } from '../features/users/pages/AccountsPage';
@@ -33,6 +36,7 @@ export function App() {
           {/* Public Auth Routes */}
           <Route path="/thong-bao" element={<NotificationsPage />} />
           <Route path="/thong-bao/:notificationId" element={<NotificationsPage />} />
+          <Route element={<ServiceLayout/>}><Route path="/chat" element={<ChatPage/>}/><Route path="/chat/:conversationId" element={<ChatPage/>}/><Route path="/payments" element={<PaymentsPage/>}/><Route path="/payments/new" element={<CreateContractPage/>}/><Route path="/payments/contracts/:contractId" element={<ContractPage/>}/><Route path="/payments/disputes/:disputeId" element={<DisputePage/>}/></Route>
           <Route path="/xac-minh-email" element={<VerifyEmailPage />} />
           <Route path="/tai-khoan" element={<ProfilePage />} />
           <Route path="/nguoi-dung/:accountId" element={<PublicProfilePage />} />
